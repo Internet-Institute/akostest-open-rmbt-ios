@@ -1,0 +1,430 @@
+"ÜBERNEHMEN" = "SPREJMI";
+
+"Options" = "Možnosti";
+
+"Description" = "Opis";
+
+"Succeeded" = "Uspešno";
+
+"Failed" = "Neuspešno";
+
+"Cancel" = "Prekliči";
+
+/* History column */
+"Date" = "Datum";
+
+/* History column */
+"Device" = "Naprava";
+
+/* Sync dialog button */
+"Enter code" = "Vnesite kodo";
+
+/* Sync alert title */
+"Enter sync code:" = "Vnesi kodo za sinhronizacijo:";
+
+/* Sync success alert msg */
+"History synchronisation was successful." = "Zgodovina je bila uspešno sinhronizirana";
+
+/* History result section title */
+"Measurement" = "Meritve";
+
+/* History result section title */
+"Weitere Details" = "Nadaljne podrobnosti";
+
+/* History result section title */
+"Network" = "Omrežje";
+
+/* History result section title */
+"Qualität" = "Kvaliteta";
+
+/* History result section title */
+"Test details" = "Podrobnosti testa";
+
+/* Sync success button */
+"Reload" = "Ponovno naloži";
+
+/* Sync dialog button */
+"Request code" = "Zaprosi za kodo";
+
+/* Sync success alert title */
+"Success" = "Uspešno";
+
+/* Sync alert button */
+"Sync" = "Sinhronizacija";
+
+/* Sync intro text */
+"To merge history from two different devices, request the sync code on one device and enter it on another device" = "V kolikor želite združiti zgodovino rezultatov iz dveh različnih naprav, zaprosite za kodo za sinhronizacijo na eni napravi in jo vnesite v drugo napravo";
+
+/* Abort test alert title */
+"Abort Test" = "Prekliči test";
+
+/* Abort test alert title */
+"Continue" = "Nadaljuj";
+
+/* Display code alert button */
+"Copy code" = "Kopiraj kodo";
+
+/* Abort test alert title */
+"Do you really want to abort the running test?" = "Ali res želite prekiniti test, ki se pravkar izvaja?";
+
+/* Display code alert button */
+"OK" = "V redu";
+
+/* Display code alert title */
+"Sync Code" = "Koda za sinhronizacijo";
+
+/* Text field placholder */
+"Code" = "Koda";
+
+/* Filter section title */
+"Network Type" = "Tip omrežj";
+
+/* Sync error alert button */
+"Dismiss" = "Zavrzi";
+
+/* Map overlay description */
+"Auto" = "Samodejno";
+
+/* Map overlay description */
+"Heatmap" = "Toplotni zemljevid";
+
+/* Google Maps Legal Notice nevigation title */
+"Legal Notice" = "Pravno obvestilo";
+
+/* Table section header title */
+"Overlay" = "Prekrivanje";
+
+/* Map overlay description */
+"Points" = "Točke";
+
+/* Footer status label */
+"Aborted" = "Prekinjeno";
+
+/* Alert view button */
+"Close" = "Zapri";
+
+/* Alert view title */
+"Connection Error" = "Napaka v povezavi";
+
+/* Alert view message */
+"Couldn't connect to test server." = "Povezava s testnim strežnikom ni mogoča.";
+
+/* Alert view title */
+"Error" = "Napaka";
+
+/* Alert view button */
+"Repeat Test" = "Ponovi test";
+
+/* Alert view title */
+"Test aborted" = "Prekinjen test";
+
+/* Alert view message */
+"Test was aborted because the app went into background. Tests can only be performed while the app is running in foreground." = "Test je bil prekinjen, ker je aplikacija prešla v ozadje. Teste je mogoče izvajati samo, ko se aplikacija izvaja v ospredju.";
+
+/* Alert view message */
+"Test was completed, but the results couldn't be submitted to the test server." = "Test se je zaključil, vendar rezultatov ni bilo mogoče poslati na strežnik.";
+
+/* Alert view message */
+"The connection to the test server was lost. Test aborted." = "Povezava s testnim strežnikom je bila izgubljena. Test prekinjen.";
+
+/* Alert view button */
+"Try Again" = "Poskusite ponovno";
+
+/* Phase status label */
+"Fetching test parameters" = "Pridobivanje testnih parametrov";
+
+/* Phase status label */
+"Finalizing" = "Zaključevanje";
+
+/* Phase status label */
+"Initializing Upload" = "Inicializacija prenosa";
+
+/* Phase status label */
+"Initializing" = "Inicializacija";
+
+/* Phase status label */
+"Pinging" = "Ping";
+
+/* Phase status label */
+"Upload" = "Gor";
+
+/* Phase status label */
+"Waiting for test server" = "Waiting for test server";
+
+/* Test view label */
+"Connection" = "Povezava";
+
+/* Speed suffix */
+"Mbps" = "Mb/s";
+
+/* Phase status label */
+"Download" = "Dol";
+
+/* Test intro screen title when thre's no connectivity */
+"No network connection available" = "Omrežna povezava ni na voljo";
+
+/* Map overlay description */
+"Shapes" = "Oblike";
+
+/* Measurement item title */
+"Quality tests" = "Testi kvalitete storitev";
+
+/* QoS Details section header */
+"Information" = "Informacije";
+
+/* Section header */
+"Details" = "Podrobnosti";
+
+/* History result section title
+   Phase status label */
+"QoS" = "QoS";
+
+/* Section header for successful test */
+"Test Failed" = "Test ni uspel";
+
+/* Section header for successful test */
+"Test Succeeded" = "Test je bil uspešen";
+
+/* QoS Details section header */
+"Tests" = "Testi";
+
+/* Map overlay summary */
+"Map shows tests as community shapes" = "Zemljevid prikazuje teste kot oblike skupnosti";
+
+/* Map overlay summary */
+"Map shows tests as heatmap" = "Zemljevid prikazuje teste kot toplotni zemljevid";
+
+/* Map overlay summary */
+"Map shows tests as points" = "Zemljevid prikazuje teste kot točke";
+
+/* Map overlay summary */
+"Map switches automatically between heatmap and points" = "Zemljevid samodejno preklaplja med toplotnim zemljevidom in točkami";
+
+/* Section title in the map options view
+   Title of the map options subview */
+"Map type" = "Tip zemljevida";
+
+/* Loop mode alert message */
+"You are about to start tests in loop mode. The distance is set to %@ meters. The waiting time between tests is %@ minutes." = "Začel se bo ponovitveni način testiranja. Razdalja je nastavljena na %@ metrov. Čakalni čas med testi je %@ minut.";
+
+/* Loop mode details title */
+"Access" = "Dostop";
+
+/* Loop mode details title */
+"Data usage" = "Poraba podatkov";
+
+/* Loop mode header title */
+"Previous test" = "Prejšnji test";
+
+/* Screen title */
+"Loop Mode" = "Ponovitveni način";
+
+/* Loop mode alert title */
+"Number of tests" = "Število testov";
+
+/* Loop mode alert button */
+"Start tests" = "Začni testiranje";
+
+/* Intro screen button title */
+"Test Connection" = "Testna povezava";
+
+/* Confirmation dialog title 1/2 */
+"Activation and privacy" = "Aktivacija in zasebnost";
+
+/* Confirmation dialog title 1/2 */
+"Usage" = "Uporaba";
+
+/* Confirmation dialog subtitle */
+"Loop mode %@/2" = "Ponovitveni način %@/2";
+
+/* Loop Mode status */
+"Waiting" = "Čakanje";
+
+/* Loop mode details title */
+"Location" = "Lokacija";
+
+/* A11 */
+"Start" = "Začetek";
+"History" = "Zgodovina";
+"Statistics" = "Statistika";
+"Map" = "Zemljevid";
+"Collapse results" = "Strni rezultate";
+"Expand results" = "Razširi rezultate";
+"Share result" = "Deli rezultat";
+"Start measurement now" = "Začni meriti zdaj";
+"Disable loop mode" = "Onemogoči ponovitveni način";
+"Enable loop mode" = "Omogoči ponovitveni način";
+"Settings" = "Nastavitve";
+"Show IPv4 address" = "Prikaži IPv4 naslov";
+"Show IPv6 address" = "Prikaži IPv6 naslov";
+"Show location" = "Prikaži lokacijo";
+
+"video_telephony" = "Video telefonija";
+"video_conferencing" = "Video konferenca";
+"cloud" = "Oblak";
+"video_uhd" = "Video UHD";
+"video_sd" = "Video SD";
+"video_hd" = "Video HD";
+"voip" = "VoIP";
+"streaming_audio_streaming" = "Zvok s pretakanjem";
+"web" = "Splet";
+"messaging" = "Sporočila";
+"gaming_download" = "Igranje dol";
+"gaming" = "Igranje";
+"gaming_cloud" = "Igranje prek oblaka";
+"gaming_streaming" = "Igranje s pretakanjem";
+"qos" = "QoS testi";
+
+"text_button_decline" = "Zavrni";
+"text_button_accept" = "Sprejmi";
+
+"title_loop_instruction_1" = "Aktivacija";
+"title_loop_instruction_2" = "Uporaba";
+
+"tos.agree" = "Strinjam se";
+"tos.decline" = "Zavrni";
+"tos.agreements.title" = "Strinjam se z AKOS politiko zasebnosti in pogoji uporabe za AKOS NetTest.";
+
+"public_ip_address" = "Javni naslov";
+"private_ip_address" = "Privatni naslov";
+
+"title_loop_mode" = "Ponovitveni način";
+
+/* Location Dialog */
+"location_dialog_label_title" = "Lokacija";
+"location_dialog_label_position" = "Položaj";
+"location_dialog_label_accuracy" = "Natančnost";
+"location_dialog_label_age" = "Starost";
+"location_dialog_label_source" = "Vir";
+"location_dialog_label_altitude" = "Višina";
+"location_dialog_label_speed" = "Hitrost";
+"location_dialog_label_satellites" = "Sateliti";
+"location_dialog_label_location_progress_message" = "Pridobivanje lokacije, prosim počakajte…";
+"open_gps_setting_dialog_label_gps_not_enabled" = "Lokacijske storitve niso omogočene. Želite odpreti nastavitve lokacije?";
+"open_gps_setting_dialog_label_open_gps_setting" = "Prikaži nastavitve lokacije";
+"open_gps_setting_dialog_label_cancel" = "Prekliči";
+"location_dialog_not_available" = "Ni na voljo";
+"location_dialog_age" = "%1$s s";
+"location_dialog_accuracy" = "%1$s m";
+"location_dialog_speed" = "%1$s km/h";
+"location_dialog_position" = "%1$s %2$s";
+"location_location_direction_n" = "S";
+"location_location_direction_e" = "V";
+"location_location_direction_s" = "J";
+"location_location_direction_w" = "Z";
+"open_location_permission_dialog_label_location_not_permitted" = "AKOS NetTest nima dovoljenja za uporabo vaše lokacije. Ali želite AKOS NetTest aplikaciji dovoliti uporabo vaše lokacije?";
+"open_location_permission_dialog_label_open_permission_setting" = "Odprite nastavitve aplikacije";
+
+/* Menu Items */
+"menu_button_history" = "Zgodovina";
+
+"preferences_enter_code" = "Vnesite kodo";
+
+"input_setting_dialog_ok" = "V redu";
+"input_setting_dialog_cancel" = "Prekliči";
+"button_sync_enter_code" = "Vnesite kodo";
+
+"title_loop_mode" = "Ponovitveni način";
+"title_loop_count" = "Izberite število testov";
+"text_loop_start" = "Začni testiranje";
+"text_loop_mode" = "Nov test po čakalnem času ali premagani razdalji. Največ 2 dni.";
+"preferences_loop_mode_summary" = "Nov test po čakalnem času ali premagani razdalji. Največ 2 dni.";
+"preferences_loop_mode_min_delay" = "Čakalni čas (v minutah)";
+"preferences_loop_mode_max_movement" = "Razdalja (v metrih)";
+
+"invalide_loop_mode_count" = "Neveljavno število testov";
+"invalide_loop_mode_distance" = "Neveljavna razdalja";
+"invalide_loop_mode_waiting_minutes" = "Neveljavne čakalni čas";
+"loop_mode_enter_value_between_format" = "Vnesite število med %i in %i";
+
+"loop_mode_next_test" = "Naslednji test";
+"loop_mode_minutes" = "Minute";
+"loop_mode_meters" = "Metri";
+"loop_mode_no_gps" = "Ni GPS";
+"or" = "ali";
+
+"loop_mode_finished" = "AKOS NetTest ponovitveni način je končan!";
+"loop_mode_finished_description" = "";
+"loop_continue_to_results" = "Prikaži rezultate";
+"loop_run_again" = "Zaženi ponovno";
+
+/* History */
+"history.sync-modal-title.default" = "Sinhronizacija";
+"history.sync-modal-title.sync-success" = "Uspešno";
+"history.sync-modal-description.default" = "Združite lahko rezultate testa iz dveh različnih naprav. Če želite to storiti, vnesite kodo za sinhronizacijo, za katero ste zaprosili, ali pa zaprosite za novo kodo.";
+"history.sync-modal-description.enter-code" = "Prosimo, vnesite kodo, ki ste jo prejeli na drugi napravi.";
+"history.sync-modal-description.request-code" = "Prosimo, vnesite spodnjo kodo na drugo naprava za sinhronizacijo rezultatov.";
+"history.sync-modal-description.sync-success" = "Sinhronizacija rezultatov je bila uspešna.";
+"The code must consist of twelve characters" = "TKoda mora biti dolga 12 znakov";
+"The devices are already synchronized with each other." = "Naprava je že sinhronizirana.";
+"The code you entered does not exist." = "Vnesšena koda ne obstaja.";
+"history.result.connection" = "Tip";
+"history.result.operator" = "Operator";
+
+/* Test */
+"test.network.label" = "Omrežje";
+"test.technology.label" = "Tehnologija";
+"label_upload" = "Gor";
+"label_download" = "Dol";
+"label_ping" = "Ping";
+
+"measurement_ping" = "Ping";
+"measurement_down" = "Dol";
+"measurement_up" = "Gor";
+
+"preferences_general_settings" = "Splošne nastavitve";
+"preferences_advanced_settings" = "Napredne nastavitve";
+"preferences_location" = "Omogoči lokacijo";
+"preferences_location_summary" = "Lokacija je trenutno onemogočena, omogočite jo lahko na tej povezavi v sistemskih nastavitvah";
+"preferences_ipv4_only" = "Samo IPv4";
+"preferences_skip_qos" = "QoS meritve";
+"preferences_expert_mode" = "Napredni način";
+"preferences_loop_mode" = "Ponovitveni način";
+"preferences_loop_mode_enabled" = "Omogočeno";
+"preferences_loop_mode_summary" = "Nov test po čakalnem času ali premagani razdalji. Največ 2 dni.";
+"preferences_loop_mode_min_delay" = "Čakalni čas (v minutah)";
+"preferences_loop_mode_max_movement" = "Razdalja (v metrih)";
+"preferences_contact" = "Kontakt";
+"preferences_go_to_website" = "Obišči spletno stran";
+"preferences_contact_us" = "Kontaktirajte nas";
+"preferences_data_protection" = "Splošni pogoji in politika zasebnosti";
+"preferences_additional_Information" = "Dodatne informacije";
+"preferences_client_uuid" = "UUID odjemalca";
+"preferences_test_cases" = "Število izvedenih testov";
+"preferences_version" = "Verzija";
+"preferences_about" = "Info";
+"preferences_developed_by" = "Razvito s strani";
+"preferences_source_code" = "Izvorna koda";
+
+"preferences_debug_options" = "Možnosti odpravljanja napak";
+"preferences_ipv6_only" = "Samo IPv6";
+
+"preferences_developer_control_server" = "Kontrolni strežnik";
+"preferences_override_control_server_host" = "Kontrolni gostitelj";
+"preferences_override_control_server_port" = "Kontrolna vrata";
+"preferences_override_control_server_ssl" = "SSL - kontrolni strežnik";
+
+"preferences_developer_logging" = "Dnevniška sporočila";
+"preferences_developer_logging_summary" = "Dnevniška sporočila bodo poslana na izbrani ciljni naslov prek UDP.";
+"preferences_developer_loggind_host" = "Gostitelj dnevniških sporočil";
+"preferences_developer_loggind_port" = "Vrata  dnevniških sporočil";
+
+"preferences_qos_measurement_only_after_some_time" = "Vsaki 2 uri";
+"preferences_qos_measurement_only_after_some_time_summary" = "Ne izvedi QoS meritev, če od zadnje meritve nista minili 2 uri.";
+
+"button_accept.title" = "SPREJMI";
+
+"map.map_view" = "Videz zemljevida";
+"map.cart_details" = "Vrsta prikaza";
+
+"map_style_hybrid" = "Hibridni";
+"map_style_satellite" = "Satelitski";
+"map_style_standard" = "Splošni";
+
+"map_layer_communities" = "Skupnosti";
+"map_layer_points" = "Točke";
+"map_layer_automatic" = "Samodejno";
+
+"menu_button_statistics" = "Statistika";
+
+"text_ip_address_not_available" = "Naslov ni na voljo";

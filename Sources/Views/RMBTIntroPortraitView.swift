@@ -252,8 +252,11 @@ private extension UIImage {
 }
 
 private extension UIColor {
+    //static let noNetworkAvailable = UIColor(red: 242.0 / 255, green: 243.0 / 255, blue: 245.0 / 255, alpha: 1.0)
+    //static let networkAvailable = UIColor(red: 0.0 / 255, green: 113.0 / 255, blue: 215.0 / 255, alpha: 1.0)
     static let noNetworkAvailable = UIColor(red: 242.0 / 255, green: 243.0 / 255, blue: 245.0 / 255, alpha: 1.0)
-    static let networkAvailable = UIColor(red: 0.0 / 255, green: 113.0 / 255, blue: 215.0 / 255, alpha: 1.0)
+    // AKOS color
+    static let networkAvailable = UIColor(red: 127.0 / 255, green: 165.0 / 255, blue: 216.0 / 255, alpha: 1.0)
     
     static let noNetworkTypeAvailable = UIColor(red: 66.0 / 255, green: 66.0 / 255, blue: 66.0 / 255, alpha: 0.4)
     static let networkTypeAvailable = UIColor(red: 1, green: 1, blue: 1, alpha: 0.4)
@@ -262,7 +265,7 @@ private extension UIColor {
     static let networkLogoAvailable = UIColor(red: 1, green: 1, blue: 1, alpha: 1.0)
     
     static let ipNotAvailable = UIColor(red: 245.0 / 255.0, green: 0.0 / 255.0, blue: 28.0/255.0, alpha: 1.0)
-    static let ipSemiAvailable = UIColor(red: 255.0 / 255.0, green: 186.0 / 255.0, blue: 0, alpha: 1.0)
+    static let ipSemiAvailable = UIColor(red: 255.0 / 255.0, green: 6.0 / 255.0, blue: 0, alpha: 1.0)
     static let ipAvailable = UIColor(red: 89.0 / 255.0, green: 178.0 / 255.0, blue: 0, alpha: 1.0)
 }
 

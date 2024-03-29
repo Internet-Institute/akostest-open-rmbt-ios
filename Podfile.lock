@@ -37,7 +37,7 @@ PODS:
     - ObjcExceptionBridging/ObjcExceptionBridging (= 1.0.1)
   - ObjcExceptionBridging/ObjcExceptionBridging (1.0.1)
   - ObjectMapper (3.5.3)
-  - ReachabilitySwift (5.0.0)
+  - ReachabilitySwift (5.2.1)
   - TUSafariActivity (1.0.4)
   - XCGLogger (7.0.1):
     - XCGLogger/Core (= 7.0.1)
@@ -96,10 +96,10 @@ SPEC CHECKSUMS:
   MDFInternationalization: d697c55307816222a55685c4ccb1044ffb030c12
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
   ObjectMapper: 97111c97e054a6ee25917662106689f0b4127b37
-  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
+  ReachabilitySwift: 5ae15e16814b5f9ef568963fb2c87aeb49158c66
   TUSafariActivity: afc55a00965377939107ce4fdc7f951f62454546
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
 PODFILE CHECKSUM: 27dac78395e8bfd9da390d0256ff1d40705acc8a
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.12.1

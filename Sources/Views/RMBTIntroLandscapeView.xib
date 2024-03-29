@@ -3,6 +3,7 @@
     <device id="retina6_1" orientation="landscape" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22684"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -267,8 +268,9 @@
                         <constraint firstAttribute="bottom" secondItem="3zF-b1-XDT" secondAttribute="bottom" id="lrf-VS-UTF"/>
                     </constraints>
                 </view>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="RTR-Netztest" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uFu-u4-PYC">
-                    <rect key="frame" x="358.5" y="25" width="119.5" height="21"/>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AKOS Test Net" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uFu-u4-PYC">
+                    <rect key="frame" x="352.5" y="25" width="131.5" height="21"/>
+                    <color key="tintColor" name="akosLight"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="21" id="T55-yb-cnz"/>
                     </constraints>
@@ -290,7 +292,8 @@
                 </label>
             </subviews>
             <viewLayoutGuide key="safeArea" id="5Xc-wd-VcA"/>
-            <color key="backgroundColor" red="0.0" green="0.4431372549" blue="0.84313725490000002" alpha="1" colorSpace="calibratedRGB"/>
+            <color key="backgroundColor" name="akosLight"/>
+            <color key="tintColor" name="akosDark"/>
             <constraints>
                 <constraint firstItem="Scg-aO-ECo" firstAttribute="leading" secondItem="2u0-nO-9xw" secondAttribute="centerX" constant="-30" id="2NK-zT-cYP"/>
                 <constraint firstAttribute="bottom" secondItem="pwN-Am-Qnq" secondAttribute="bottom" id="6Tj-8p-iYi"/>
@@ -356,6 +359,12 @@
         <image name="mobile_icon" width="84" height="52"/>
         <image name="test_button" width="307" height="307"/>
         <image name="wifi_icon" width="102" height="74"/>
+        <namedColor name="akosDark">
+            <color red="0.18000000715255737" green="0.42399999499320984" blue="0.69800001382827759" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="akosLight">
+            <color red="0.52899998426437378" green="0.64300000667572021" blue="0.83099997043609619" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

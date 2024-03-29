@@ -64,10 +64,6 @@
 		E926C2EE276A11E7009FCF12 /* RMBTSSLHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E926C2ED276A11E7009FCF12 /* RMBTSSLHelper.swift */; };
 		E926C2F2276A1EDC009FCF12 /* RMBTBaseTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E926C2F1276A1EDC009FCF12 /* RMBTBaseTestViewController.swift */; };
 		E926C2F4276A3345009FCF12 /* RMBTQoSTestRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E926C2F3276A3345009FCF12 /* RMBTQoSTestRunner.swift */; };
-		E92E07B6277B4A80008143FE /* RMBTSpeedTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92E07B5277B4A80008143FE /* RMBTSpeedTest.swift */; };
-		E92E07B8277B4B4F008143FE /* RMBTProgressTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92E07B7277B4B4F008143FE /* RMBTProgressTest.swift */; };
-		E92E07BA277B4DF6008143FE /* RMBTHelpersTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92E07B9277B4DF6008143FE /* RMBTHelpersTest.swift */; };
-		E92E07BC277B4E92008143FE /* RMBTThroughputHistoryTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92E07BB277B4E92008143FE /* RMBTThroughputHistoryTest.swift */; };
 		E930769926CE247F0046A17B /* RMBTMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E930769826CE247F0046A17B /* RMBTMapViewController.swift */; };
 		E930769B26CE3AA80046A17B /* RMBTMapOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E930769A26CE3AA80046A17B /* RMBTMapOptionsViewController.swift */; };
 		E930769F26CE83200046A17B /* RMBTMapOptionsLayoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E930769E26CE83200046A17B /* RMBTMapOptionsLayoutViewController.swift */; };
@@ -289,16 +285,6 @@
 		F71B138A4E5F6DC41FF14268 /* Pods_RMBT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32DE166B881B73366FE005F9 /* Pods_RMBT.framework */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		C70828071CB6792F00F482EB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C7DE1470173E8F610079477A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C7DE1477173E8F610079477A;
-			remoteInfo = RMBT;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		1F9C078F216F751C00F1FC10 /* RMBT.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RMBT.entitlements; sourceTree = "<group>"; };
 		32DE166B881B73366FE005F9 /* Pods_RMBT.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RMBT.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -327,6 +313,10 @@
 		49B28C7B2BA19C5400697BB4 /* RMBTFilePreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMBTFilePreviewViewController.swift; sourceTree = "<group>"; };
 		49B28C7D2BA4238700697BB4 /* TestExportFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestExportFormat.swift; sourceTree = "<group>"; };
 		49C86FDC2AFBBF1500663CE2 /* RMBTConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RMBTConfig.swift; sourceTree = "<group>"; };
+		5E22B2572BB6E125007A0A97 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = sl.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5E22B2582BB6E125007A0A97 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = sl; path = sl.lproj/terms_conditions_long.html; sourceTree = "<group>"; };
+		5E22B2592BB6E125007A0A97 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = sl; path = sl.lproj/loop_mode_info.html; sourceTree = "<group>"; };
+		5E22B25A2BB6E125007A0A97 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = sl; path = sl.lproj/loop_mode_info2.html; sourceTree = "<group>"; };
 		89CA21386C488DD817CA1DC2 /* Pods-RMBT.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RMBT.debug.xcconfig"; path = "Pods/Target Support Files/Pods-RMBT/Pods-RMBT.debug.xcconfig"; sourceTree = "<group>"; };
 		C573F2A4175281D300C728FC /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		C573F2B0175294A500C728FC /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
@@ -339,7 +329,6 @@
 		C5DEB481176364D900187C94 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		C5DEB483176364DF00187C94 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		C5DEB485176364E400187C94 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		C70828021CB6792F00F482EB /* RMBTTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RMBTTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C70828061CB6792F00F482EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../RMBTTest/Info.plist; sourceTree = "<group>"; };
 		C70C178B17D7BFC400F55964 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		C741B62B1DD99D7A0097D84D /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
@@ -605,13 +594,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		C70827FF1CB6792F00F482EB /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		C7DE1475173E8F610079477A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -857,7 +839,6 @@
 			isa = PBXGroup;
 			children = (
 				C7DE1478173E8F610079477A /* RMBT.app */,
-				C70828021CB6792F00F482EB /* RMBTTest.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1347,24 +1328,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		C70828011CB6792F00F482EB /* RMBTTest */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = C70828091CB6792F00F482EB /* Build configuration list for PBXNativeTarget "RMBTTest" */;
-			buildPhases = (
-				C70827FE1CB6792F00F482EB /* Sources */,
-				C70827FF1CB6792F00F482EB /* Frameworks */,
-				C70828001CB6792F00F482EB /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				C70828081CB6792F00F482EB /* PBXTargetDependency */,
-			);
-			name = RMBTTest;
-			productName = RMBTTest;
-			productReference = C70828021CB6792F00F482EB /* RMBTTest.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		C7DE1477173E8F610079477A /* RMBT */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C7DE149E173E8F610079477A /* Build configuration list for PBXNativeTarget "RMBT" */;
@@ -1398,15 +1361,8 @@
 				LastUpgradeCheck = 1250;
 				ORGANIZATIONNAME = "appscape gmbh";
 				TargetAttributes = {
-					C70828011CB6792F00F482EB = {
-						CreatedOnToolsVersion = 7.3;
-						DevelopmentTeam = T7Y947AEPK;
-						LastSwiftMigration = 1320;
-						TestTargetID = C7DE1477173E8F610079477A;
-					};
 					C7DE1477173E8F610079477A = {
 						LastSwiftMigration = 1250;
-						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.AccessWiFi = {
 								enabled = 1;
@@ -1423,6 +1379,7 @@
 				en,
 				Base,
 				de,
+				sl,
 			);
 			mainGroup = C7DE146F173E8F610079477A;
 			productRefGroup = C7DE1479173E8F610079477A /* Products */;
@@ -1430,19 +1387,11 @@
 			projectRoot = "";
 			targets = (
 				C7DE1477173E8F610079477A /* RMBT */,
-				C70828011CB6792F00F482EB /* RMBTTest */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		C70828001CB6792F00F482EB /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		C7DE1476173E8F610079477A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1582,17 +1531,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		C70827FE1CB6792F00F482EB /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E92E07BA277B4DF6008143FE /* RMBTHelpersTest.swift in Sources */,
-				E92E07B6277B4A80008143FE /* RMBTSpeedTest.swift in Sources */,
-				E92E07B8277B4B4F008143FE /* RMBTProgressTest.swift in Sources */,
-				E92E07BC277B4E92008143FE /* RMBTThroughputHistoryTest.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		C7DE1474173E8F610079477A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1800,14 +1738,6 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		C70828081CB6792F00F482EB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = C7DE1477173E8F610079477A /* RMBT */;
-			targetProxy = C70828071CB6792F00F482EB /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin PBXVariantGroup section */
 		3678AA7F291E35D70059D6CB /* RMBT-InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
@@ -1824,6 +1754,7 @@
 				E9555E9B2727D318003547B0 /* en */,
 				E9C13F8F272C286E00DA60D4 /* Base */,
 				E9C13F94272C28CD00DA60D4 /* de */,
+				5E22B2592BB6E125007A0A97 /* sl */,
 			);
 			name = loop_mode_info.html;
 			sourceTree = "<group>";
@@ -1834,6 +1765,7 @@
 				E9555E9C2727D31B003547B0 /* en */,
 				E9C13F90272C287100DA60D4 /* Base */,
 				E9C13F95272C28CD00DA60D4 /* de */,
+				5E22B25A2BB6E125007A0A97 /* sl */,
 			);
 			name = loop_mode_info2.html;
 			sourceTree = "<group>";
@@ -1844,6 +1776,7 @@
 				E9555E9A2727D309003547B0 /* en */,
 				E9C13F8E272C286C00DA60D4 /* Base */,
 				E9C13F93272C28CD00DA60D4 /* de */,
+				5E22B2582BB6E125007A0A97 /* sl */,
 			);
 			name = terms_conditions_long.html;
 			sourceTree = "<group>";
@@ -1854,6 +1787,7 @@
 				E9555EA72727D478003547B0 /* en */,
 				E9C13F91272C289D00DA60D4 /* Base */,
 				E9C13F92272C28CD00DA60D4 /* de */,
+				5E22B2572BB6E125007A0A97 /* sl */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -1861,87 +1795,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		C708280A1CB6792F00F482EB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREFIX_HEADER = "RMBTTests/RMBTTests-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = RMBTTest/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = at.rtr.RMBTTest;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "RMBTTests/RMBTTest-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RMBT.app/RMBT";
-			};
-			name = Debug;
-		};
-		C708280B1CB6792F00F482EB /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREFIX_HEADER = "RMBTTests/RMBTTests-Prefix.pch";
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = RMBTTest/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = at.rtr.RMBTTest;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "RMBTTests/RMBTTest-Bridging-Header.h";
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RMBT.app/RMBT";
-			};
-			name = Release;
-		};
 		C7DE149C173E8F610079477A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1968,9 +1821,10 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Luka Korsic (RRJ5TMRRL3)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Luka Korsic (RRJ5TMRRL3)";
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = T7Y947AEPK;
+				DEVELOPMENT_TEAM = C5K274TXG7;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -1990,7 +1844,8 @@
 				New_Setting = "";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DDEBUG=1";
-				PROVISIONING_PROFILE_SPECIFIER = Development;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -2020,9 +1875,10 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Luka Korsic (RRJ5TMRRL3)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Luka Korsic (RRJ5TMRRL3)";
 				COPY_PHASE_STRIP = YES;
-				DEVELOPMENT_TEAM = T7Y947AEPK;
+				DEVELOPMENT_TEAM = C5K274TXG7;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -2036,6 +1892,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				New_Setting = "";
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "RTRNetztest App Store Distribution";
 				SDKROOT = iphoneos;
@@ -2049,14 +1906,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 89CA21386C488DD817CA1DC2 /* Pods-RMBT.debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconAkos;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = RMBT.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 4044;
-				DEVELOPMENT_TEAM = T7Y947AEPK;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3B38V9F2SQ;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2069,6 +1927,7 @@
 					"DEBUG=1",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Resources/RMBT-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "AKOS TestNet";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2076,9 +1935,10 @@
 				);
 				MARKETING_VERSION = 4.0.44;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -D DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = at.netztest.app.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = eu.qmon.rtrtest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "rtr-inin";
 				SWIFT_OBJC_BRIDGING_HEADER = "Sources/RMBT-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -2091,14 +1951,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F620A48D0EF31330DAC04D48 /* Pods-RMBT.release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconAkos;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = RMBT.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 4044;
-				DEVELOPMENT_TEAM = T7Y947AEPK;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3B38V9F2SQ;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2107,15 +1968,17 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "$(SRCROOT)/Resources/RMBT-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "AKOS TestNet";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 4.0.44;
-				PRODUCT_BUNDLE_IDENTIFIER = at.netztest.app.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = eu.qmon.rtrtest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "rtr-inin";
 				SWIFT_OBJC_BRIDGING_HEADER = "Sources/RMBT-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2126,15 +1989,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C70828091CB6792F00F482EB /* Build configuration list for PBXNativeTarget "RMBTTest" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				C708280A1CB6792F00F482EB /* Debug */,
-				C708280B1CB6792F00F482EB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		C7DE1473173E8F610079477A /* Build configuration list for PBXProject "RMBT" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
