@@ -372,6 +372,16 @@
 "measurement_down" = "Dol";
 "measurement_up" = "Gor";
 
+"measurement_qos" = "Kvaliteta storitev (QoS)";
+"measurement_qos_website" = "Spletna stran";
+"measurement_qos_http_proxy" = "Nespremenjena vsebina";
+"measurement_qos_non_transparent_proxy" = "Transparentna povezava";
+"measurement_qos_dns" = "DNS";
+"measurement_qos_tcp" = "TCP vrata";
+"measurement_qos_udp" = "UDP vrata";
+"measurement_qos_traceroute_masked" = "Traceroute";
+"measurement_qos_voip" = "VoIP";
+
 "preferences_general_settings" = "Splošne nastavitve";
 "preferences_advanced_settings" = "Napredne nastavitve";
 "preferences_location" = "Omogoči lokacijo";
@@ -400,11 +410,13 @@
 "preferences_ipv6_only" = "Samo IPv6";
 
 "preferences_developer_control_server" = "Kontrolni strežnik";
+"preferences_override_control_enabled" = "Nadomesti kontrolni strežnik";
 "preferences_override_control_server_host" = "Kontrolni gostitelj";
 "preferences_override_control_server_port" = "Kontrolna vrata";
 "preferences_override_control_server_ssl" = "SSL - kontrolni strežnik";
 
 "preferences_developer_logging" = "Dnevniška sporočila";
+"preferences_developer_logging_enabled" = "Dnevniška sporočila vključena";
 "preferences_developer_logging_summary" = "Dnevniška sporočila bodo poslana na izbrani ciljni naslov prek UDP.";
 "preferences_developer_loggind_host" = "Gostitelj dnevniških sporočil";
 "preferences_developer_loggind_port" = "Vrata  dnevniških sporočil";
@@ -428,3 +440,5 @@
 "menu_button_statistics" = "Statistika";
 
 "text_ip_address_not_available" = "Naslov ni na voljo";
+"start_test_button_help_message" = "Pritisnite gumb za začetek meritev!";
+"RTR-NetTest" = "AKOS Test Net";
