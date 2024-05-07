@@ -31,10 +31,9 @@
 		49B28C7C2BA19C5400697BB4 /* RMBTFilePreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B28C7B2BA19C5400697BB4 /* RMBTFilePreviewViewController.swift */; };
 		49B28C7E2BA4238700697BB4 /* TestExportFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B28C7D2BA4238700697BB4 /* TestExportFormat.swift */; };
 		49F976802B0B3E880098C4CC /* RMBTConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49C86FDC2AFBBF1500663CE2 /* RMBTConfig.swift */; };
-		5E2C88632BDA53CE0010093A /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5DEB475176364B100187C94 /* AVFoundation.framework */; };
-		C0179F76245DF4AA68D30B5C /* Pods_RMBT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35DEDCD2F87A0F0C834ACA60 /* Pods_RMBT.framework */; };
 		C573F2A5175281D300C728FC /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C573F2A4175281D300C728FC /* MapKit.framework */; };
 		C573F2B1175294A500C728FC /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C573F2B0175294A500C728FC /* CoreLocation.framework */; };
+		C5DEB476176364B100187C94 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5DEB475176364B100187C94 /* AVFoundation.framework */; };
 		C5DEB478176364BC00187C94 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5DEB477176364BC00187C94 /* CoreData.framework */; };
 		C5DEB47A176364C300187C94 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5DEB479176364C300187C94 /* CoreText.framework */; };
 		C5DEB47E176364CE00187C94 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5DEB47D176364CE00187C94 /* ImageIO.framework */; };
@@ -283,12 +282,12 @@
 		E9E9E9012742685E005EB393 /* UIView+XibLoadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E9E9002742685E005EB393 /* UIView+XibLoadable.swift */; };
 		E9E9E90327429B6C005EB393 /* RMBTTestLandscapeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E9E90227429B6B005EB393 /* RMBTTestLandscapeView.swift */; };
 		E9E9E90527429B90005EB393 /* RMBTTestLandscapeView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9E9E90427429B90005EB393 /* RMBTTestLandscapeView.xib */; };
+		F71B138A4E5F6DC41FF14268 /* Pods_RMBT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32DE166B881B73366FE005F9 /* Pods_RMBT.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1F9C078F216F751C00F1FC10 /* RMBT.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RMBT.entitlements; sourceTree = "<group>"; };
-		237D17BF2BEA024B50F44663 /* Pods-RMBT.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RMBT.release.xcconfig"; path = "Target Support Files/Pods-RMBT/Pods-RMBT.release.xcconfig"; sourceTree = "<group>"; };
-		35DEDCD2F87A0F0C834ACA60 /* Pods_RMBT.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RMBT.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		32DE166B881B73366FE005F9 /* Pods_RMBT.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RMBT.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		361443472732793D00D0FC26 /* RMBTHistorySyncModalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMBTHistorySyncModalViewController.swift; sourceTree = "<group>"; };
 		3628C538275639E40001E885 /* RMBTHistoryQoSTitledResultCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RMBTHistoryQoSTitledResultCell.xib; sourceTree = "<group>"; };
 		3628C53A27563AA40001E885 /* RMBTHistoryQoSTitledResultCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMBTHistoryQoSTitledResultCell.swift; sourceTree = "<group>"; };
@@ -314,11 +313,11 @@
 		49B28C7B2BA19C5400697BB4 /* RMBTFilePreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMBTFilePreviewViewController.swift; sourceTree = "<group>"; };
 		49B28C7D2BA4238700697BB4 /* TestExportFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestExportFormat.swift; sourceTree = "<group>"; };
 		49C86FDC2AFBBF1500663CE2 /* RMBTConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RMBTConfig.swift; sourceTree = "<group>"; };
-		4B06E606E8E212212B186040 /* Pods-RMBT.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RMBT.debug.xcconfig"; path = "Target Support Files/Pods-RMBT/Pods-RMBT.debug.xcconfig"; sourceTree = "<group>"; };
 		5E22B2572BB6E125007A0A97 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = sl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5E22B2582BB6E125007A0A97 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = sl; path = sl.lproj/terms_conditions_long.html; sourceTree = "<group>"; };
 		5E22B2592BB6E125007A0A97 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = sl; path = sl.lproj/loop_mode_info.html; sourceTree = "<group>"; };
 		5E22B25A2BB6E125007A0A97 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = sl; path = sl.lproj/loop_mode_info2.html; sourceTree = "<group>"; };
+		89CA21386C488DD817CA1DC2 /* Pods-RMBT.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RMBT.debug.xcconfig"; path = "Pods/Target Support Files/Pods-RMBT/Pods-RMBT.debug.xcconfig"; sourceTree = "<group>"; };
 		C573F2A4175281D300C728FC /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		C573F2B0175294A500C728FC /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		C5DEB475176364B100187C94 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -591,6 +590,7 @@
 		E9E9E9002742685E005EB393 /* UIView+XibLoadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+XibLoadable.swift"; sourceTree = "<group>"; };
 		E9E9E90227429B6B005EB393 /* RMBTTestLandscapeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RMBTTestLandscapeView.swift; sourceTree = "<group>"; };
 		E9E9E90427429B90005EB393 /* RMBTTestLandscapeView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RMBTTestLandscapeView.xib; sourceTree = "<group>"; };
+		F620A48D0EF31330DAC04D48 /* Pods-RMBT.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RMBT.release.xcconfig"; path = "Pods/Target Support Files/Pods-RMBT/Pods-RMBT.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -603,11 +603,11 @@
 				C7F08F6A1769F37700741844 /* CoreTelephony.framework in Frameworks */,
 				C5DEB484176364DF00187C94 /* libz.dylib in Frameworks */,
 				C5DEB482176364D900187C94 /* libicucore.dylib in Frameworks */,
-				5E2C88632BDA53CE0010093A /* AVFoundation.framework in Frameworks */,
 				C5DEB480176364D500187C94 /* libc++.dylib in Frameworks */,
 				C5DEB47E176364CE00187C94 /* ImageIO.framework in Frameworks */,
 				C5DEB47A176364C300187C94 /* CoreText.framework in Frameworks */,
 				C5DEB478176364BC00187C94 /* CoreData.framework in Frameworks */,
+				C5DEB476176364B100187C94 /* AVFoundation.framework in Frameworks */,
 				C573F2B1175294A500C728FC /* CoreLocation.framework in Frameworks */,
 				E9555EAC2727D49C003547B0 /* Metal.framework in Frameworks */,
 				C573F2A5175281D300C728FC /* MapKit.framework in Frameworks */,
@@ -618,20 +618,20 @@
 				C7DE147E173E8F610079477A /* Foundation.framework in Frameworks */,
 				C7DE1480173E8F610079477A /* CoreGraphics.framework in Frameworks */,
 				E9555EAF2727D4B1003547B0 /* CoreServices.framework in Frameworks */,
-				C0179F76245DF4AA68D30B5C /* Pods_RMBT.framework in Frameworks */,
+				F71B138A4E5F6DC41FF14268 /* Pods_RMBT.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2CAB93F09DCB9506696372A2 /* Pods */ = {
+		B5AF762C1C3DE54BD04B4440 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				4B06E606E8E212212B186040 /* Pods-RMBT.debug.xcconfig */,
-				237D17BF2BEA024B50F44663 /* Pods-RMBT.release.xcconfig */,
+				89CA21386C488DD817CA1DC2 /* Pods-RMBT.debug.xcconfig */,
+				F620A48D0EF31330DAC04D48 /* Pods-RMBT.release.xcconfig */,
 			);
-			path = Pods;
+			name = Pods;
 			sourceTree = "<group>";
 		};
 		C5DEB48B1763A0A800187C94 /* Map */ = {
@@ -831,7 +831,7 @@
 				C7916E9A173E90DB00B40152 /* Resources */,
 				C7DE147A173E8F610079477A /* Frameworks */,
 				C7DE1479173E8F610079477A /* Products */,
-				2CAB93F09DCB9506696372A2 /* Pods */,
+				B5AF762C1C3DE54BD04B4440 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -870,7 +870,7 @@
 				C7DE147D173E8F610079477A /* Foundation.framework */,
 				C7DE147F173E8F610079477A /* CoreGraphics.framework */,
 				C7E4672C177CDDB600AAF7F0 /* SenTestingKit.framework */,
-				35DEDCD2F87A0F0C834ACA60 /* Pods_RMBT.framework */,
+				32DE166B881B73366FE005F9 /* Pods_RMBT.framework */,
 			);
 			name = Frameworks;
 			path = Vendor;
@@ -1332,13 +1332,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C7DE149E173E8F610079477A /* Build configuration list for PBXNativeTarget "RMBT" */;
 			buildPhases = (
-				D1C0D48A8D1B00A40E96DF01 /* [CP] Check Pods Manifest.lock */,
+				D2C080EC48316E5A53399219 /* [CP] Check Pods Manifest.lock */,
 				E9F686BF2726E52800708290 /* Update Configurations */,
 				C7DE1474173E8F610079477A /* Sources */,
 				C7DE1475173E8F610079477A /* Frameworks */,
 				C7DE1476173E8F610079477A /* Resources */,
 				C79401F017FB021000484B8A /* Run Script: Add Build Infos */,
-				733DAB884C76385FC592EDB2 /* [CP] Embed Pods Frameworks */,
+				14F69917C001DA1C19CAA4FE /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1459,7 +1459,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		733DAB884C76385FC592EDB2 /* [CP] Embed Pods Frameworks */ = {
+		14F69917C001DA1C19CAA4FE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1492,20 +1492,16 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Scripts/add_build_infos.sh\"\n";
 		};
-		D1C0D48A8D1B00A40E96DF01 /* [CP] Check Pods Manifest.lock */ = {
+		D2C080EC48316E5A53399219 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			inputFileListPaths = (
 			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
 				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-RMBT-checkManifestLockResult.txt",
 			);
@@ -1825,10 +1821,10 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Luka Korsic (RRJ5TMRRL3)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Luka Korsic (RRJ5TMRRL3)";
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = 6BMEZC5Q6V;
+				DEVELOPMENT_TEAM = C5K274TXG7;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -1879,10 +1875,10 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Luka Korsic (RRJ5TMRRL3)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Luka Korsic (RRJ5TMRRL3)";
 				COPY_PHASE_STRIP = YES;
-				DEVELOPMENT_TEAM = 6BMEZC5Q6V;
+				DEVELOPMENT_TEAM = C5K274TXG7;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1898,7 +1894,7 @@
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "RTRNetztest App Store Distribution";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1908,15 +1904,17 @@
 		};
 		C7DE149F173E8F610079477A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4B06E606E8E212212B186040 /* Pods-RMBT.debug.xcconfig */;
+			baseConfigurationReference = 89CA21386C488DD817CA1DC2 /* Pods-RMBT.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconAkos;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = RMBT.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4045;
-				DEVELOPMENT_TEAM = 6BMEZC5Q6V;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 4044;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3B38V9F2SQ;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1935,11 +1933,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0.45;
+				MARKETING_VERSION = 4.0.44;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -D DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = si.akos.akostestnettest;
+				PRODUCT_BUNDLE_IDENTIFIER = eu.qmon.rtrtest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "rtr-inin";
 				SWIFT_OBJC_BRIDGING_HEADER = "Sources/RMBT-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1950,17 +1949,17 @@
 		};
 		C7DE14A0173E8F610079477A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 237D17BF2BEA024B50F44663 /* Pods-RMBT.release.xcconfig */;
+			baseConfigurationReference = F620A48D0EF31330DAC04D48 /* Pods-RMBT.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconAkos;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = RMBT.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 4045;
+				CURRENT_PROJECT_VERSION = 4044;
 				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 6BMEZC5Q6V;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3B38V9F2SQ;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1975,11 +1974,11 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.0.45;
-				PRODUCT_BUNDLE_IDENTIFIER = si.akos.akostestnettest;
+				MARKETING_VERSION = 4.0.44;
+				PRODUCT_BUNDLE_IDENTIFIER = eu.qmon.rtrtest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "si.akos.akostestnet AppStore Test";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "rtr-inin";
 				SWIFT_OBJC_BRIDGING_HEADER = "Sources/RMBT-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
