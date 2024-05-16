@@ -15,7 +15,7 @@ enum TestExportFormat {
 extension TestExportFormat {
     var urlPath: String {
         switch self {
-        case .pdf: "/export/pdf/de"
+        case .pdf: "/export/pdf/" + getLanguage()
         case .xlsx, .csv: "/opentests/search"
         }
     }
@@ -42,8 +42,22 @@ extension TestExportFormat {
         case .csv: "csv"
         }
     }
+    
+    private func getLanguage() -> String{
+        
+        var lang = RMBTHelpers.RMBTPreferredLanguage()
+        if (lang == "sl") {
+            lang = "sl"
+        }
+        else{
+            lang = "en"
+        }
+        return lang
+    }
 
     func downloadRequest(baseURL: URL, openTestUUIDs: [String], maxResults: Int? = nil) -> URLRequest {
+        // https://m01.netztest.at/RMBTStatisticServer
+    
         var request = URLRequest(url: baseURL.appending(path: urlPath))
         request.httpMethod = "POST"
         request.httpBody = httpBody(openTestUUIDs: openTestUUIDs, maxResults: maxResults)

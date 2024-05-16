@@ -22,7 +22,6 @@ class RMBTWebViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         navigationController?.isNavigationBarHidden = true
-
         self.view.addSubview(webView)
         
         NSLayoutConstraint.activate([

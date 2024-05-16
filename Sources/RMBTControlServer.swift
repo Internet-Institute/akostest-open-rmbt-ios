@@ -484,7 +484,8 @@ extension RMBTControlServer {
     func getTestExport(into format: TestExportFormat, openTestUUIDs: [String]) async throws -> URL {
         try await URLSession.shared.download(
             for: format.downloadRequest(
-                baseURL: statisticServerURL ?? URL(string: "https://m01.netztest.at/RMBTStatisticServer")!,
+                //baseURL: statisticServerURL ?? URL(string: "https://m01.netztest.at/RMBTStatisticServer")!,
+                baseURL: statisticServerURL ?? URL(string: "https://testnet2.akostest.net/RMBTStatisticServer")!,
                 openTestUUIDs: openTestUUIDs,
                 maxResults: openTestUUIDs.count > 1 ? min(openTestUUIDs.count, 500) : nil
             )
