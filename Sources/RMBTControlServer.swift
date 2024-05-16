@@ -43,7 +43,7 @@ public typealias HistoryFilterType = [String: [String]]
     private var uuidKey: String?
     
     @objc public var historyFilters: HistoryFilterType?
-    public var openTestBaseURL: String?
+    public var openTestBaseURL: String? = RMBTConfig.shared.RMBT_URL_HOST
     
     private var settings: SettingsResponse.Settings?
     
@@ -484,8 +484,7 @@ extension RMBTControlServer {
     func getTestExport(into format: TestExportFormat, openTestUUIDs: [String]) async throws -> URL {
         try await URLSession.shared.download(
             for: format.downloadRequest(
-                //baseURL: statisticServerURL ?? URL(string: "https://m01.netztest.at/RMBTStatisticServer")!,
-                baseURL: statisticServerURL ?? URL(string: "https://testnet2.akostest.net/RMBTStatisticServer")!,
+                baseURL: statisticServerURL ?? URL(string: RMBTConfig.shared.RMBT_URL_HOST + "/RMBTStatisticServer")!,
                 openTestUUIDs: openTestUUIDs,
                 maxResults: openTestUUIDs.count > 1 ? min(openTestUUIDs.count, 500) : nil
             )

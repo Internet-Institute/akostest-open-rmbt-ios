@@ -157,10 +157,19 @@ import ObjectMapper
     }
 
     @objc(getURLStringForOpenTestUUID:success:) public func getOpenTestUrl(_ openTestUuid: String, success successCallback: @escaping (_ response: String?) -> ()) {
+
         if let url = RMBTControlServer.shared.openTestBaseURL {
-            let theURL = url + openTestUuid
+
+            var lang = RMBTHelpers.RMBTPreferredLanguage()
+            if (!(lang == "sl" || lang == "en")) {
+                lang = "en"
+            }
+            
+            let theURL = url + "/" + lang + "/Opentest?" + openTestUuid + "#noMMenu"
             successCallback(theURL)
+            
         } else {
+
             RMBTControlServer.shared.getSettings {
                 if let url = RMBTControlServer.shared.openTestBaseURL {
                     let theURL = url + openTestUuid
@@ -171,6 +180,7 @@ import ObjectMapper
                 successCallback(nil)
             }
         }
+        
     }
 
     private func request<T: BasicResponse>(_ method: Alamofire.HTTPMethod, path: String, requestObject: BasicRequest?, success: @escaping (_ response: T) -> (), error failure: @escaping ErrorCallback) {
