@@ -30,7 +30,9 @@ final class RMBTHistorySpeedGrapshCell: UITableViewCell {
         if pageControl.currentPage != page {
             pageControl.currentPage = Int(page)
             UIView.transition(with: titleLabel, duration: 0.3, options: .transitionCrossDissolve) {
-                self.titleLabel.text = self.graphs[Int(page)].title
+                //self.titleLabel.text = self.graphs[Int(page)].title
+                self.titleLabel.text = NSLocalizedString(self.graphs[Int(page)].title, comment: "")
+
             } completion: { _ in }
         }
     }

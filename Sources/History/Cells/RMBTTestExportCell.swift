@@ -72,6 +72,7 @@ class RMBTTestExportCell: UITableViewCell {
     }
 
     @IBAction func pdfButtonTouched(_ sender: UIButton) {
+        
         guard !openTestUUIDs.isEmpty else {
             onFailure?(.missingOpenTestUUID)
             return

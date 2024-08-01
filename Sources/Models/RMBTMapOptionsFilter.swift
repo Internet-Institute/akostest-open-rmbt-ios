@@ -25,13 +25,13 @@ import UIKit
         }
         // TODO: Remake it, because if we will use another language then we should put localization for each word from response
         switch title {
-        case "Zeitraum", "Period":
+        case "Zeitraum", "Period", "Časovni izbor":
             return UIImage(named: "map_options_period")
-        case "Betreiber", "Operator":
+        case "Betreiber", "Operator", "Operater":
             return UIImage(named: "map_options_provider")
-        case "Statistik", "Statistics":
+        case "Statistik", "Statistics", "Statistika":
             return UIImage(named: "map_options_statistic")
-        case "Technologie", "Technology":
+        case "Technologie", "Technology", "Technologija":
             return UIImage(named: "map_options_technologies")
         default:
             return nil

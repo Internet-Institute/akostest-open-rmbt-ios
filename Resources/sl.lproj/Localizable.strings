@@ -442,3 +442,5 @@
 "text_ip_address_not_available" = "Naslov ni na voljo";
 "start_test_button_help_message" = "Pritisnite gumb za začetek meritev!";
 "RTR-NetTest" = "AKOS Test Net";
+
+"Export data" = "Izvoz meritev";
