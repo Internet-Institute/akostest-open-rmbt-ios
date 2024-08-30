@@ -371,6 +371,8 @@
 "measurement_ping" = "Ping";
 "measurement_down" = "Down";
 "measurement_up" = "Up";
+"measurement_result_down" = "Down";
+"measurement_result_up" = "Up";
 
 "measurement_qos" = "Servicequalität (QoS)";
 "measurement_qos_website" = "Webseite";
