@@ -131,6 +131,7 @@ final class RMBTAppDelegate: UIResponder, UIApplicationDelegate {
         
         // Text color
         RMBTNavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor(red: 66.0/255.0, green: 66.0/255.0, blue: 66.0/255.0, alpha: 1.0)]
+        
     }
 }
 

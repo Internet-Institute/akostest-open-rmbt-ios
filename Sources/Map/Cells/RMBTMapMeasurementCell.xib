@@ -36,6 +36,9 @@
                                         <fontDescription key="fontDescription" name="Roboto-Medium" family="Roboto" pointSize="16"/>
                                         <color key="textColor" red="0.25882352941176467" green="0.25882352941176467" blue="0.25882352941176467" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <nil key="highlightedColor"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="localizableText" value="Network"/>
+                                        </userDefinedRuntimeAttributes>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="q70-ej-4td">
                                         <rect key="frame" x="16" y="47" width="145" height="100"/>
@@ -280,9 +283,12 @@
                                     <constraint firstAttribute="height" constant="48" id="pco-Ey-eyV"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="Roboto-Medium" family="Roboto" pointSize="14"/>
-                                <state key="normal" title="DETAILS">
+                                <state key="normal" title="Details">
                                     <color key="titleColor" name="greenButtonBackground"/>
                                 </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="localizableText" value="Details"/>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="detailsButtonClick:" destination="gTV-IL-0wX" eventType="touchUpInside" id="085-PE-A0f"/>
                                 </connections>

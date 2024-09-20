@@ -173,7 +173,7 @@
 "Information" = "Information";
 
 /* Section header */
-"Details" = "Details";
+"@" = "Details";
 
 /* History result section title
    Phase status label */

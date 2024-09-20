@@ -45,7 +45,7 @@
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="NrU-qU-p5u" customClass="RMBTStatsViewController" customModule="RMBT" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Statistics" image="tab_stats" id="yzM-Br-Dak">
                         <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="string" keyPath="localizableAccessibilityLabel" value="Statistics"/>
+                            <userDefinedRuntimeAttribute type="string" keyPath="localizableText" value="Statistics"/>
                         </userDefinedRuntimeAttributes>
                     </tabBarItem>
                     <toolbarItems/>
@@ -2287,7 +2287,7 @@
                 <navigationController storyboardIdentifier="kMapNavigationControllerID" navigationBarHidden="YES" id="tkX-Jf-9ub" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Map" image="tab_map" id="cx5-UR-fhg">
                         <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="string" keyPath="localizableAccessibilityLabel" value="Map"/>
+                            <userDefinedRuntimeAttribute type="string" keyPath="localizableAccessibilityLabel" value="Map" localized="YES"/>
                         </userDefinedRuntimeAttributes>
                     </tabBarItem>
                     <nil key="simulatedTopBarMetrics"/>
@@ -3278,7 +3278,7 @@
                 <navigationController id="rpx-4g-zab" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="History" image="tab_history" id="VP0-Ij-zcN">
                         <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="string" keyPath="localizableAccessibilityLabel" value="History"/>
+                            <userDefinedRuntimeAttribute type="string" keyPath="localizableText" value="History"/>
                         </userDefinedRuntimeAttributes>
                     </tabBarItem>
                     <toolbarItems/>
@@ -3296,13 +3296,13 @@
             </objects>
             <point key="canvasLocation" x="1094" y="-759"/>
         </scene>
-        <!--Test-->
+        <!--Start-->
         <scene sceneID="Dov-Du-zmC">
             <objects>
                 <navigationController id="Vug-MK-vw0" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Test" image="tab_test" id="mJf-68-Rhf">
+                    <tabBarItem key="tabBarItem" title="Start" image="tab_test" id="mJf-68-Rhf">
                         <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="string" keyPath="localizableAccessibilityLabel" value="Start"/>
+                            <userDefinedRuntimeAttribute type="string" keyPath="localizableText" value="Start"/>
                         </userDefinedRuntimeAttributes>
                     </tabBarItem>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Vud-Iy-aaq">
@@ -4055,7 +4055,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGray5Color">
-            <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.89803921568627454" green="0.89803921568627454" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

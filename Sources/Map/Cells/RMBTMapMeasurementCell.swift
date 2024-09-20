@@ -53,6 +53,8 @@ class RMBTMapMeasurementCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
+        detailsButton.setTitle(NSLocalizedString("Details", comment: ""), for: .normal)
+        
         rootView.layer.shadowOpacity = 0.2
         rootView.layer.shadowOffset = CGSize(width: 0, height: 1)
         rootView.layer.shadowRadius = 3

@@ -149,6 +149,13 @@ class RMBTIntroViewController: UIViewController {
         self.tabBarController?.tabBar.isTranslucent = false
         self.navigationController?.setNavigationBarHidden(true, animated: false)
         
+        // Localize nav bar items
+        self.navigationController?.tabBarController?.tabBar.items?[0].title = NSLocalizedString("Start", comment: "")
+        self.navigationController?.tabBarController?.tabBar.items?[1].title = NSLocalizedString("History", comment: "")
+        self.navigationController?.tabBarController?.tabBar.items?[2].title = NSLocalizedString("Statistics", comment: "")
+        self.navigationController?.tabBarController?.tabBar.items?[3].title = NSLocalizedString("Map", comment: "")
+    
+        
         NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
         
         currentView.updateLoopModeUI()
