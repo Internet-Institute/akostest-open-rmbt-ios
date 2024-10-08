@@ -146,7 +146,7 @@
 "Pinging" = "Ping";
 
 /* Phase status label */
-"Upload" = "Gor";
+"Upload" = "Odtočna hitrost";
 
 /* Phase status label */
 "Waiting for test server" = "Waiting for test server";
@@ -158,7 +158,7 @@
 "Mbps" = "Mb/s";
 
 /* Phase status label */
-"Download" = "Dol";
+"Download" = "Pritočna hitrost";
 
 /* Test intro screen title when thre's no connectivity */
 "No network connection available" = "Omrežna povezava ni na voljo";
