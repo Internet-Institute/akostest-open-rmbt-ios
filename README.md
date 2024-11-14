@@ -1,5 +1,7 @@
-Open-RMBT iOS App
+AKOS TestNet iOS App
 =================
+
+AKOS TestNet is released under the [Apache License, Version 2.0]. The iOS App was developed by [InternetInstitute] and financed by the [Agency for Communication Networks and Services of the Republic of Slovenia (AKOS)](https://www.akos-rs.si/en/).
 
 OpenRMBT is an open source, multi-threaded bandwidth test used in [RTR-Netztest]. This repository contains the sources for the iOS App. For server and Android App sources, see [https://github.com/rtr-nettest].
 
@@ -10,6 +12,7 @@ OpenRMBT is released under the [Apache License, Version 2.0]. The iOS App was de
   [RTR]: https://www.rtr.at/
   [Apache License, Version 2.0]: https://www.apache.org/licenses/LICENSE-2.0
   [https://github.com/rtr-nettest]: https://github.com/rtr-nettest
+  [InternetInstitute]: https://iinstitute.eu/
 
 Building
 --------
