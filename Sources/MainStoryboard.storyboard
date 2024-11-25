@@ -199,11 +199,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <view key="tableFooterView" opaque="NO" contentMode="scaleToFill" id="dol-gh-wV2">
-                            <rect key="frame" x="0.0" y="1706.3333301544189" width="390" height="122"/>
+                            <rect key="frame" x="0.0" y="1788.6666622161865" width="390" height="122"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <subviews>
                                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="logo_land" translatesAutoresizingMaskIntoConstraints="NO" id="DIM-Jn-St1">
-                                    <rect key="frame" x="19" y="-14" width="390" height="151"/>
+                                    <rect key="frame" x="23" y="20" width="389" height="111"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     <rect key="contentStretch" x="0.0" y="0.0" width="0.94999999999999996" height="1"/>
                                 </imageView>
@@ -815,11 +815,11 @@
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="6Iw-nj-kKZ">
                                         <rect key="frame" x="0.0" y="919.33333015441895" width="390" height="56"/>
                                         <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="6Iw-nj-kKZ" id="YV6-0L-iGb">
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" tableViewCell="6Iw-nj-kKZ" id="YV6-0L-iGb">
                                             <rect key="frame" x="0.0" y="0.0" width="390" height="56"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Source Code" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b74-RE-ejO">
+                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" ambiguous="YES" text="Source Code" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b74-RE-ejO">
                                                     <rect key="frame" x="20.000000000000007" y="18.666666666666668" width="90.666666666666686" height="19.000000000000004"/>
                                                     <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="16"/>
                                                     <color key="textColor" red="0.25882352939999997" green="0.25882352939999997" blue="0.25882352939999997" alpha="1" colorSpace="calibratedRGB"/>
@@ -828,7 +828,7 @@
                                                         <userDefinedRuntimeAttribute type="string" keyPath="localizableText" value="preferences_source_code"/>
                                                     </userDefinedRuntimeAttributes>
                                                 </label>
-                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vvt-cD-UxP">
+                                                <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vvt-cD-UxP">
                                                     <rect key="frame" x="20" y="55" width="350" height="1"/>
                                                     <color key="backgroundColor" red="0.93333333330000001" green="0.93333333330000001" blue="0.93333333330000001" alpha="1" colorSpace="calibratedRGB"/>
                                                     <constraints>
@@ -848,11 +848,11 @@
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="e43-Ov-odr">
                                         <rect key="frame" x="0.0" y="975.33333015441895" width="390" height="56"/>
                                         <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="e43-Ov-odr" id="9R5-NR-E5D">
-                                            <rect key="frame" x="0.0" y="0.0" width="390" height="56.000000000000114"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" tableViewCell="e43-Ov-odr" id="9R5-NR-E5D">
+                                            <rect key="frame" x="0.0" y="0.0" width="390" height="56"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Developed by" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JZN-fn-PNI">
+                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" ambiguous="YES" text="Developed by" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JZN-fn-PNI">
                                                     <rect key="frame" x="20" y="18.666666666666668" width="215.66666666666666" height="19.000000000000004"/>
                                                     <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="16"/>
                                                     <color key="textColor" red="0.25882352939999997" green="0.25882352939999997" blue="0.25882352939999997" alpha="1" colorSpace="calibratedRGB"/>
@@ -861,13 +861,13 @@
                                                         <userDefinedRuntimeAttribute type="string" keyPath="localizableText" value="preferences_developed_by"/>
                                                     </userDefinedRuntimeAttributes>
                                                 </label>
-                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" horizontalHuggingPriority="252" horizontalCompressionResistancePriority="752" text="appscape gmbh" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yxV-am-V2Z">
+                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" horizontalHuggingPriority="252" horizontalCompressionResistancePriority="752" ambiguous="YES" text="appscape gmbh" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yxV-am-V2Z">
                                                     <rect key="frame" x="255.66666666666666" y="18.666666666666668" width="114.33333333333334" height="19.000000000000004"/>
                                                     <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="16"/>
                                                     <color key="textColor" red="0.25882352939999997" green="0.25882352939999997" blue="0.25882352939999997" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pDE-x9-W6I">
+                                                <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pDE-x9-W6I">
                                                     <rect key="frame" x="20" y="55" width="350" height="1"/>
                                                     <color key="backgroundColor" red="0.93333333330000001" green="0.93333333330000001" blue="0.93333333330000001" alpha="1" colorSpace="calibratedRGB"/>
                                                     <constraints>
@@ -1527,7 +1527,7 @@
                                                 <rect key="frame" x="196" y="0.0" width="58" height="45"/>
                                                 <subviews>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="I13-y0-Z2B">
-                                                        <rect key="frame" x="0.0" y="14.666666666666671" width="58" height="30.333333333333329"/>
+                                                        <rect key="frame" x="0.0" y="14.66666666666667" width="58" height="30.333333333333329"/>
                                                         <subviews>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Down" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="d41-hv-r49">
                                                                 <rect key="frame" x="0.0" y="0.0" width="58" height="14.333333333333334"/>
@@ -1569,7 +1569,7 @@
                                                 <rect key="frame" x="254" y="0.0" width="58" height="45"/>
                                                 <subviews>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iMO-b5-Nkd">
-                                                        <rect key="frame" x="0.0" y="14.666666666666671" width="58" height="30.333333333333329"/>
+                                                        <rect key="frame" x="0.0" y="14.66666666666667" width="58" height="30.333333333333329"/>
                                                         <subviews>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Up" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9yU-Ul-Z2D">
                                                                 <rect key="frame" x="0.0" y="0.0" width="58" height="14.333333333333334"/>
@@ -1611,7 +1611,7 @@
                                                 <rect key="frame" x="312" y="0.0" width="58" height="45"/>
                                                 <subviews>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QgG-Oz-RFz">
-                                                        <rect key="frame" x="0.0" y="14.666666666666671" width="58" height="30.333333333333329"/>
+                                                        <rect key="frame" x="0.0" y="14.66666666666667" width="58" height="30.333333333333329"/>
                                                         <subviews>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ping" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EYh-bR-KwX">
                                                                 <rect key="frame" x="0.0" y="0.0" width="58" height="14.333333333333334"/>
