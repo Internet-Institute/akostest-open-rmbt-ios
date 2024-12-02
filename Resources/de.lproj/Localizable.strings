@@ -312,7 +312,7 @@
 "location_location_direction_e" = "E";
 "location_location_direction_s" = "S";
 "location_location_direction_w" = "W";
-"open_location_permission_dialog_label_location_not_permitted" = "Standort nicht verfügbar. Zulassen, dass RTR-Netztest auf den Standort Ihres Geräts zugreift?";
+"open_location_permission_dialog_label_location_not_permitted" = "Standort nicht verfügbar. Zulassen, dass AKOS Test Net auf den Standort Ihres Geräts zugreift?";
 "open_location_permission_dialog_label_open_permission_setting" = "Einstellungen öffnen";
 
 /* Menu Items */
@@ -443,6 +443,6 @@
 
 "text_ip_address_not_available" = "Die Adresse nicht verfügbar";
 "start_test_button_help_message" = "Drücken Sie den Knopf um den Test zu starten";
-"RTR-NetTest" = "RTR-Netztest";
+"RTR-NetTest" = "AKOS Test Net";
 
 "Export data" = "Exportieren";
