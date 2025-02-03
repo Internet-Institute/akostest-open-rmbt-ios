@@ -10,8 +10,8 @@ import UIKit
 
 @objc class RMBTHistorySpeedGraph: NSObject {
 
-    private (set) var throughputs: [RMBTThroughput] = []
-    private (set) var points: [CGPoint] = []
+    private(set) var throughputs: [RMBTThroughput] = []
+    private(set) var points: [CGPoint] = []
     
     @objc(initWithResponse:)
     init(with response: [[String: Any]]) {
@@ -79,7 +79,7 @@ import UIKit
         if value < 1e5 {
             return 0
         }
-        return (2 + log10(value / 1e7)) / 4
+        return (2 + log10(value / 1e7)) / GAUGE_PARTS
     }
 }
 

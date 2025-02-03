@@ -194,7 +194,7 @@ class RMBTConnectivity: NSObject {
         networkName = nil
 
         //Get access technology
-        if let radioAccessTechnology = radioAccessTechnology {
+        if let radioAccessTechnology {
             cellularCode = cellularCodeForCTValue(radioAccessTechnology)
             cellularCodeDescription = cellularCodeDescriptionForCTValue(radioAccessTechnology)
         }
@@ -234,8 +234,7 @@ class RMBTConnectivity: NSObject {
         }
     }
 
-    fileprivate func cellularCodeForCTValue(_ value: String?) -> Int? {
-        guard let value = value else { return nil }
+    fileprivate func cellularCodeForCTValue(_ value: String) -> Int? {
 
         return cellularCodeTable[value]
     }
@@ -261,12 +260,8 @@ class RMBTConnectivity: NSObject {
         return table
     }
 
-    fileprivate func cellularCodeDescriptionForCTValue(_ value: String!) -> String? {
-        if value == nil {
-            return nil
-        }
-
-        return cellularCodeDescriptionTable[value] ?? nil
+    fileprivate func cellularCodeDescriptionForCTValue(_ value: String) -> String? {
+        value.radioTechnologyCode
     }
 
     fileprivate var cellularCodeDescriptionTable: [String: String] {
@@ -288,5 +283,45 @@ class RMBTConnectivity: NSObject {
         table[CTRadioAccessTechnologyNR] = "5G/NR"
         
         return table
+    }
+}
+
+extension String {
+    var radioTechnologyCode: String? {
+        let table = [
+            CTRadioAccessTechnologyGPRS: "2G/GSM",
+            CTRadioAccessTechnologyEdge: "2G/EDGE",
+            CTRadioAccessTechnologyWCDMA: "3G/UMTS",
+            CTRadioAccessTechnologyCDMA1x: "2G/CDMA",
+            CTRadioAccessTechnologyCDMAEVDORev0: "2G/EVDO_0",
+            CTRadioAccessTechnologyCDMAEVDORevA: "2G/EVDO_A",
+            CTRadioAccessTechnologyHSDPA: "3G/HSDPA",
+            CTRadioAccessTechnologyHSUPA: "3G/HSUPA",
+            CTRadioAccessTechnologyCDMAEVDORevB: "2G/EVDO_B",
+            CTRadioAccessTechnologyLTE: "4G/LTE",
+            CTRadioAccessTechnologyeHRPD: "2G/HRPD",
+            CTRadioAccessTechnologyNRNSA: "5G/NRNSA",
+            CTRadioAccessTechnologyNR: "5G/NR"
+        ]
+        return table[self]
+    }
+
+    var radioTechnologyTypeID: Int? {
+        var table = [
+            CTRadioAccessTechnologyGPRS:         1,
+            CTRadioAccessTechnologyEdge:         2,
+            CTRadioAccessTechnologyWCDMA:        3,
+            CTRadioAccessTechnologyCDMA1x:       4,
+            CTRadioAccessTechnologyCDMAEVDORev0: 5,
+            CTRadioAccessTechnologyCDMAEVDORevA: 6,
+            CTRadioAccessTechnologyHSDPA:        8,
+            CTRadioAccessTechnologyHSUPA:        9,
+            CTRadioAccessTechnologyCDMAEVDORevB: 12,
+            CTRadioAccessTechnologyLTE:          13,
+            CTRadioAccessTechnologyeHRPD:        14,
+            CTRadioAccessTechnologyNRNSA:        41,
+            CTRadioAccessTechnologyNR:           20
+        ]
+        return table[self]
     }
 }

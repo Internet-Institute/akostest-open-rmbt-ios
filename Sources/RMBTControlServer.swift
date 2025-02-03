@@ -419,7 +419,22 @@ extension RMBTControlServer {
             }
         }, error: failure)
     }
-    
+
+    func submitCoverageResult(
+        _ coverageRequest: SendCoverageResultRequest,
+        success: @escaping (_ response: CoverageMeasurementSubmitResponse) -> (),
+        error failure: @escaping ErrorCallback
+    ) {
+        ensureClientUuid(
+            success: { uuid in
+                coverageRequest.uuid = uuid
+                BasicRequestBuilder.addBasicRequestValues(coverageRequest)
+                self.request(.post, path: "/coverage", requestObject: coverageRequest, success: success, error: failure)
+            },
+            error: failure
+        )
+    }
+
     ///
     @objc(getSyncCode:error:) func getSyncCode(success: @escaping (_ response: GetSyncCodeResponse) -> (), error failure: @escaping ErrorCallback) {
         ensureClientUuid(success: { uuid in
@@ -482,11 +497,16 @@ extension RMBTControlServer {
     }
 
     func getTestExport(into format: TestExportFormat, openTestUUIDs: [String]) async throws -> URL {
-        try await URLSession.shared.download(
+        let sessionConfig = URLSessionConfiguration.default
+        sessionConfig.timeoutIntervalForRequest = 60.0
+        sessionConfig.timeoutIntervalForResource = 60.0
+        let session = URLSession(configuration: sessionConfig)
+
+        return try await session.download(
             for: format.downloadRequest(
                 baseURL: statisticServerURL ?? URL(string: RMBTConfig.shared.RMBT_URL_HOST + "/RMBTStatisticServer")!,
                 openTestUUIDs: openTestUUIDs,
-                maxResults: openTestUUIDs.count > 1 ? min(openTestUUIDs.count, 500) : nil
+                maxResults: openTestUUIDs.count > 1 ? min(openTestUUIDs.count, 100) : nil
             )
         ).0
     }

@@ -446,3 +446,9 @@
 "RTR-NetTest" = "AKOS Test Net";
 
 "Export data" = "Exportieren";
+
+"Home" = "Start";
+"History" = "Verlauf";
+"Statistics" = "Statistik";
+"Map" = "Karte";
+"Coverage" = "Coverage";

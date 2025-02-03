@@ -294,11 +294,11 @@ extension RMBTHistoryResultViewController: UITableViewDelegate, UITableViewDataS
         case .basicInfo:
             let networkCell = tableView.dequeueReusableCell(withIdentifier: RMBTHistoryBasicInfoCell.ID, for: indexPath) as! RMBTHistoryBasicInfoCell
             networkCell.pingValue = historyResult.shortestPingMillisString
-            networkCell.pingIcon.tintColor = .byResultClass(historyResult.pingClass)
+            networkCell.pingIcon.image = .pingIconByResultClass(historyResult.pingClass)
             networkCell.downloadValue = historyResult.downloadSpeedMbpsString
-            networkCell.downIcon.tintColor = .byResultClass(historyResult.downloadSpeedClass)
+            networkCell.downIcon.image = .downloadIconByResultClass(historyResult.downloadSpeedClass)
             networkCell.uploadValue = historyResult.uploadSpeedMbpsString
-            networkCell.upIcon.tintColor = .byResultClass(historyResult.uploadSpeedClass)
+            networkCell.upIcon.image = .uploadIconByResultClass(historyResult.uploadSpeedClass)
             networkCell.signalValue = historyResult.signal?.stringValue
             networkCell.signalIcon.tintColor = .byResultClass(historyResult.signalClass)
             networkCell.selectionStyle = .none
@@ -361,7 +361,19 @@ extension RMBTHistoryResultViewController: UITableViewDelegate, UITableViewDataS
                     onExportedCSVFile: { [weak self] in
                         self?.openFile(url: $0, historyResult: historyResult, testUUID: testUUID, fileExtension: "csv")
                     },
-                    onFailure: nil
+                    onFailure: {
+                        if case let RMBTTestExportCell.Failure.exportError(error) = $0 {
+                            UIAlertController.presentAlert(
+                                title: NSLocalizedString("Export data", comment: ""),
+                                text: error.localizedDescription,
+                                cancelTitle: NSLocalizedString("Dismiss", comment: ""),
+                                cancelAction: { _ in
+                                     self.navigationController?.popViewController(animated: true)
+                                },
+                                otherAction: nil
+                            )
+                        }
+                    }
                 )
             }
             return cell

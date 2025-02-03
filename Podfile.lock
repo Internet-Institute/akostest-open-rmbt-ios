@@ -33,15 +33,15 @@ PODS:
     - MaterialComponents/Ripple
     - MDFInternationalization
   - MDFInternationalization (3.0.0)
-  - ObjcExceptionBridging (1.0.1):
-    - ObjcExceptionBridging/ObjcExceptionBridging (= 1.0.1)
-  - ObjcExceptionBridging/ObjcExceptionBridging (1.0.1)
+  - ObjcExceptionBridging (7.1.5):
+    - ObjcExceptionBridging/ObjcExceptionBridging (= 7.1.5)
+  - ObjcExceptionBridging/ObjcExceptionBridging (7.1.5)
   - ObjectMapper (3.5.3)
-  - ReachabilitySwift (5.2.1)
+  - ReachabilitySwift (5.2.4)
   - TUSafariActivity (1.0.4)
-  - XCGLogger (7.0.1):
-    - XCGLogger/Core (= 7.0.1)
-  - XCGLogger/Core (7.0.1):
+  - XCGLogger (7.1.5):
+    - XCGLogger/Core (= 7.1.5)
+  - XCGLogger/Core (7.1.5):
     - ObjcExceptionBridging
 
 DEPENDENCIES:
@@ -94,12 +94,12 @@ SPEC CHECKSUMS:
   libextobjc: aed8b7d2b07f511c1a7ecaacb33ea03e327c69b7
   MaterialComponents: 1a9b2d9d45b1601ae544de85089adc4c464306d4
   MDFInternationalization: d697c55307816222a55685c4ccb1044ffb030c12
-  ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
+  ObjcExceptionBridging: d3d37d62981bb7f252ecb31b62d7e23a96bbfb8a
   ObjectMapper: 97111c97e054a6ee25917662106689f0b4127b37
-  ReachabilitySwift: 5ae15e16814b5f9ef568963fb2c87aeb49158c66
+  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   TUSafariActivity: afc55a00965377939107ce4fdc7f951f62454546
-  XCGLogger: 1943831ef907df55108b0b18657953f868de973b
+  XCGLogger: 399c5885210b4e2ad79d9f7a29b105d672ef724f
 
 PODFILE CHECKSUM: 5ba2605f7a0f4f9399146635e2fc874773d05c10
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.16.2
