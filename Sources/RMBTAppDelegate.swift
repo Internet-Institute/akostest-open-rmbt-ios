@@ -136,15 +136,16 @@ final class RMBTAppDelegate: UIResponder, UIApplicationDelegate {
         let tabBarController = window?.rootViewController as? UITabBarController
         let networkAvailabilityController = UIHostingController(rootView: NetworkCoverageView())
         networkAvailabilityController.tabBarItem = .init(tabBarSystemItem: .featured, tag: 4)
-        tabBarController?.viewControllers?.append(networkAvailabilityController)
+        //tabBarController?.viewControllers?.append(networkAvailabilityController)
 
         let tabBar = tabBarController?.tabBar
         tabBar?.items?[0].title = NSLocalizedString("Home", comment: "")
         tabBar?.items?[1].title = NSLocalizedString("History", comment: "")
         tabBar?.items?[2].title = NSLocalizedString("Statistics", comment: "")
         tabBar?.items?[3].title = NSLocalizedString("Map", comment: "")
-        tabBar?.items?[4].title = NSLocalizedString("Coverage", comment: "")
-        tabBar?.items?[4].image = UIImage(named: "tab_coverage")
+        //tabBar?.items?[4].title = NSLocalizedString("Coverage", comment: "")
+        //tabBar?.items?[4].image = UIImage(named: "tab_coverage")
+        
     }
 }
 
