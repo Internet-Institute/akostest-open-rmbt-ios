@@ -3,7 +3,7 @@
 //  RMBT
 //
 //  Created by Jiri Urbasek on 12/16/24.
-//  Copyright © 2024 appscape gmbh. All rights reserved.
+//  Copyright 2024 appscape gmbh. All rights reserved.
 //
 
 import Foundation
@@ -36,15 +36,15 @@ public class SendCoverageResultRequest: BasicRequest {
         private(set) var technology: String?
         private(set) var technology_id: Int?
 
-        init(area: LocationArea) {
-            timestamp = UInt64(area.time.timeIntervalSince1970 * 1_000_000) // microseconds
+        init(fence: Fence) {
+            timestamp = UInt64(fence.dateEntered.timeIntervalSince1970 * 1_000_000) // microseconds
             location = .init(
-                latitude: area.startingLocation.coordinate.latitude,
-                longitude: area.startingLocation.coordinate.longitude
+                latitude: fence.startingLocation.coordinate.latitude,
+                longitude: fence.startingLocation.coordinate.longitude
             )
-            avgPingMilliseconds = area.averagePing
-            technology = area.technologies.last?.radioTechnologyCode
-            technology_id = area.technologies.last?.radioTechnologyTypeID
+            avgPingMilliseconds = fence.averagePing
+            technology = fence.technologies.last?.radioTechnologyCode
+            technology_id = fence.technologies.last?.radioTechnologyTypeID
         }
 
         required init?(map: Map) {
@@ -61,6 +61,8 @@ public class SendCoverageResultRequest: BasicRequest {
     }
 
     var fences: [CoverageFence]
+    var testUUID: String
+    var clientUUID: String?
 
     public required init?(map: Map) {
         fatalError("init(map:) has not been implemented")
@@ -70,10 +72,13 @@ public class SendCoverageResultRequest: BasicRequest {
         super.mapping(map: map)
 
         fences <- map["fences"]
+        testUUID <- map["test_uuid"]
+        clientUUID <- map["client_uuid"]
     }
 
-    init(areas: [LocationArea]) {
-        fences = areas.map(CoverageFence.init)
+    init(fences: [Fence], testUUID: String) {
+        self.fences = fences.map(CoverageFence.init)
+        self.testUUID = testUUID
         super.init()
     }
 }
@@ -90,10 +95,29 @@ class CoverageMeasurementSubmitResponse: BasicResponse {
     }
 }
 
-extension RMBTControlServer: SendCoverageResultsService {
-    func send(areas: [LocationArea]) async throws {
+struct ControlServerCoverageResultsService: SendCoverageResultsService {
+    enum Failure: Error {
+        case missingTestUUID
+    }
+
+    let controlServer: RMBTControlServer
+    let testUUID: () -> String?
+
+    init(controlServer: RMBTControlServer, testUUID: @escaping @autoclosure () -> String?) {
+        self.controlServer = controlServer
+        self.testUUID = testUUID
+    }
+
+    func send(fences: [Fence]) async throws {
+        guard let testUUID = self.testUUID() else {
+            throw Failure.missingTestUUID
+        }
+
         _ = try await withCheckedThrowingContinuation { continuation in
-            submitCoverageResult(.init(areas: areas)) { response in
+            controlServer.submitCoverageResult(
+                .init(fences: fences, testUUID: testUUID),
+                acceptableStatusCodes: NetworkCoverageFactory.acceptableSubmitResultsRequestStatusCodes
+            ) { response in
                 continuation.resume(returning: response)
             } error: { error in
                 continuation.resume(throwing: error)

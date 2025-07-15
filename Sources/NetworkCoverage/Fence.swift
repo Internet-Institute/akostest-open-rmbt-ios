@@ -1,27 +1,28 @@
 //
-//  LocationArea.swift
+//  Fence.swift
 //  RMBT
 //
 //  Created by Jiri Urbasek on 12/12/24.
-//  Copyright © 2024 appscape gmbh. All rights reserved.
+//  Copyright 2024 appscape gmbh. All rights reserved.
 //
 
 import CoreLocation
 
-struct LocationArea: Identifiable, Hashable {
+struct Fence: Identifiable, Hashable {
     private(set) var locations: [CLLocation]
     private(set) var pings: [PingResult]
     private(set) var technologies: [String]
 
     let startingLocation: CLLocation
     let id: UUID = UUID()
-    let time: Date
+    let dateEntered: Date
+    private(set) var dateExited: Date?
 
-    init(startingLocation: CLLocation, technology: String?, avgPing: Duration? = nil, dateNow: () -> Date = Date.init) {
-        time = dateNow()
+    init(startingLocation: CLLocation, dateEntered: Date, technology: String?, pings: [PingResult] = []) {
+        self.dateEntered = dateEntered
         self.startingLocation = startingLocation
         self.locations = [startingLocation]
-        self.pings = avgPing.map { [.interval($0)] } ?? []
+        self.pings = pings
         technologies = technology.map { [$0] } ?? []
     }
 
@@ -36,19 +37,27 @@ struct LocationArea: Identifiable, Hashable {
     mutating func append(technology: String) {
         technologies.append(technology)
     }
+
+    mutating func exit(at date: Date) {
+        dateExited = date
+    }
 }
 
-extension LocationArea {
+extension Fence {
     var averagePing: Int? {
         let pingsDurations = pings.compactMap(\.interval)
         if pingsDurations.isEmpty { return nil }
         return Int(pingsDurations.map(\.milliseconds).average)
     }
+    
+    var significantTechnology: String? {
+        technologies.last
+    }
 }
 
 extension PingResult {
     var interval: Duration? {
-        switch self {
+        switch self.result {
         case .interval(let duration): duration
         case .error: nil
         }

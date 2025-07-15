@@ -3,13 +3,13 @@
 //  RMBT
 //
 //  Created by Jiri Urbasek on 12/12/24.
-//  Copyright © 2024 appscape gmbh. All rights reserved.
+//  Copyright 2024 appscape gmbh. All rights reserved.
 //
 
 import Foundation
 import CoreLocation
 import AsyncAlgorithms
-import CoreTelephony
+import SwiftUI
 
 var backgroundActivity: CLBackgroundActivitySession?
 
@@ -19,113 +19,230 @@ var backgroundActivity: CLBackgroundActivitySession?
 extension AsyncMerge2Sequence: AsynchronousSequence where Element == NetworkCoverageViewModel.Update {}
 
 @rethrows protocol PingsAsyncSequence: AsyncSequence where Element == PingResult { }
-protocol PingMeasurementService<Sequence> {
-    associatedtype Sequence: PingsAsyncSequence
+// TODO: decide if we need a protocol here or not
+//protocol PingMeasurementService<Sequence> {
+//    associatedtype Sequence: PingsAsyncSequence
+//
+//    func pings() -> Sequence
+//}
 
-    func pings() -> Sequence
-}
-
-@rethrows protocol LocationsAsyncSequence: AsyncSequence where Element == CLLocation { }
-protocol LocationUpdatesService<Sequence> {
-    associatedtype Sequence: LocationsAsyncSequence
-
-    func locations() -> Sequence
-}
-
-extension AsyncCompactMapSequence: LocationsAsyncSequence where Element == CLLocation {}
-
-struct RealLocationUpdatesService: LocationUpdatesService {
-    func locations() -> some LocationsAsyncSequence {
-        CLLocationUpdate.liveUpdates(.fitness).compactMap(\.location)
-    }
+protocol CurrentRadioTechnologyService {
+    func technologyCode() -> String?
 }
 
 protocol SendCoverageResultsService {
-    func send(areas: [LocationArea]) async throws
+    func send(fences: [Fence]) async throws
+}
+
+protocol FencePersistenceService {
+    func save(_ fence: Fence) throws
+}
+
+struct FenceItem: Identifiable, Hashable {
+    let id: UUID
+    let date: Date
+    let coordinate: CLLocationCoordinate2D
+    let technology: String
+    let isSelected: Bool
+    let isCurrent: Bool
+    let color: Color
+}
+
+struct FenceDetail: Equatable, Identifiable {
+    let id: UUID
+    let date: String
+    let technology: String
+    let averagePing: String
+    let color: Color
 }
 
 @Observable @MainActor class NetworkCoverageViewModel {
     enum Update {
         case ping(PingResult)
-        case location(CLLocation)
+        case location(LocationUpdate)
     }
 
-    private var initialLocation: CLLocation?
+    // Private state
+    @ObservationIgnored private var initialLocation: Date?
+    @ObservationIgnored private let selectedItemDateFormatter: DateFormatter
+    @ObservationIgnored private let refreshInterval: TimeInterval
+    @ObservationIgnored private var firstPingTimestamp: Date?
+    @ObservationIgnored private var pingResults: [PingResult] = [] {
+        // TODO: optimize: no need to recompute latest ping each time `pingResults` is updated but based on `refreshInterval`
+        // e.g. using timer calling `latestPingValue` periodicaly every `refreshInterval`. But pings might arrive with delay so need
+        // to take also timeout interval for ping service into account?
+        didSet {
+            let updatedLatestPing = latestPingValue()
+            if latestPing != updatedLatestPing {
+                latestPing = updatedLatestPing
+            }
+        }
+    }
+    @ObservationIgnored private var selectedFence: FenceItem?
+    @ObservationIgnored private var inaccurateLocationsWindows: [InaccurateLocationWindow] = []
+    @ObservationIgnored private var testStartTime: Date?
+    @ObservationIgnored private let maxTestDuration: TimeInterval = 4 * 60 * 60 // 4 hours in seconds
+    @ObservationIgnored private let timeNow: () -> Date
 
+    // Dependencies
+    @ObservationIgnored private let currentRadioTechnology: any CurrentRadioTechnologyService
+    @ObservationIgnored private let sendResultsService: any SendCoverageResultsService
+    @ObservationIgnored private let updates: () -> any AsynchronousSequence<Update>
+    @ObservationIgnored private let persistenceService: any FencePersistenceService
+
+    // Observable state
     var fenceRadius: CLLocationDistance = 20
-    var minimumLocationAccuracy: CLLocationDistance = 10
+    var minimumLocationAccuracy: CLLocationDistance
     private(set) var isStarted = false
     private(set) var errorMessage: String?
-
     private(set) var locations: [CLLocation] = []
-    private(set) var locationAccuracy = "N/A"
-    private(set) var latestPing = "N/A"
-    private(set) var latestTechnology = "N/A"
 
-    private let sendResultsService: any SendCoverageResultsService
-    private let updates: any AsynchronousSequence<Update>
+    private(set) var latestPing: String = "N/A"
+    private(set) var latestTechnology = "N/A"
+    private(set) var locationAccuracy = "N/A"
+
+    @MainActor
+    private var fences: [Fence] {
+        didSet {
+            // TODO: optimize: only very last fence is likely to need update, previous fences shoud remain untouched
+            // so no need to mapp all `fences` into fences items, but can cache previous mappings and update only the very last one
+            let newFences = fences.map(fenceItem)
+            if fenceItems != newFences {
+                fenceItems = newFences
+            }
+        }
+    }
+
+    private var currentFence: Fence? { fences.last }
+
+    private(set) var fenceItems: [FenceItem] = []
+    var selectedFenceID: FenceItem.ID? {
+        didSet {
+            selectedFenceDetail = fences
+                .first { $0.id == selectedFenceID }
+                .map(fenceDetail)
+        }
+    }
+    private(set) var selectedFenceDetail: FenceDetail?
 
     init(
-        areas: [LocationArea] = [],
-        pingMeasurementService: some PingMeasurementService,
-        locationUpdatesService: some LocationUpdatesService,
-        sendResultsService: some SendCoverageResultsService
+        fences: [Fence] = [],
+        refreshInterval: TimeInterval,
+        minimumLocationAccuracy: CLLocationDistance,
+        updates: @escaping () -> some AsynchronousSequence<Update>,
+        currentRadioTechnology: some CurrentRadioTechnologyService,
+        sendResultsService: some SendCoverageResultsService,
+        persistenceService: some FencePersistenceService,
+        locale: Locale,
+        timeNow: @escaping () -> Date = Date.init
     ) {
-        self.locationAreas = areas
+        self.fences = fences
+        self.refreshInterval = refreshInterval
+        self.minimumLocationAccuracy = minimumLocationAccuracy
+        self.currentRadioTechnology = currentRadioTechnology
         self.sendResultsService = sendResultsService
+        self.persistenceService = persistenceService
+        self.updates = updates
+        self.timeNow = timeNow
+        selectedItemDateFormatter = {
+            let dateFormatter = DateFormatter()
+            dateFormatter.locale = locale
+            dateFormatter.dateStyle = .medium
+            dateFormatter.timeStyle = .medium
+            return dateFormatter
+        }()
+    }
 
-        updates = merge(
-            pingMeasurementService.pings().map(Update.ping),
-            locationUpdatesService.locations().map(Update.location)
+    convenience init(
+        fences: [Fence] = [],
+        refreshInterval: TimeInterval,
+        minimumLocationAccuracy: CLLocationDistance,
+        pingMeasurementService: @escaping () -> some PingsAsyncSequence,
+        locationUpdatesService: some LocationUpdatesService,
+        currentRadioTechnology: some CurrentRadioTechnologyService,
+        sendResultsService: some SendCoverageResultsService,
+        persistenceService: some FencePersistenceService,
+        locale: Locale = .autoupdatingCurrent
+    ) {
+        self.init(
+            fences: fences,
+            refreshInterval: refreshInterval,
+            minimumLocationAccuracy: minimumLocationAccuracy,
+            updates: { merge(
+                pingMeasurementService().map(Update.ping),
+                locationUpdatesService.locations().map(Update.location)
+            )},
+            currentRadioTechnology: currentRadioTechnology,
+            sendResultsService: sendResultsService,
+            persistenceService: persistenceService,
+            locale: locale
         )
     }
 
-    @MainActor
-    private(set) var locationAreas: [LocationArea]
-    var selectedArea: LocationArea?
-    var currentArea: LocationArea? { locationAreas.last }
-
-    func iterate(_ sequence: some AsynchronousSequence<NetworkCoverageViewModel.Update>) async {
+    private func iterate(_ sequence: some AsynchronousSequence<NetworkCoverageViewModel.Update>) async {
         do {
             for try await update in sequence {
                 guard isStarted else { break }
 
+                if let startTime = testStartTime,
+                    timeNow().timeIntervalSince(startTime) >= maxTestDuration {
+                    await stop()
+                    break
+                }
+
                 switch update {
                 case .ping(let pingUpdate):
-                    latestPing = pingUpdate.displayValue
-
-                    if
-                        var currentArea = currentArea,
-                        let lastLocation = locations.last,
-                        isLocationPreciseEnough(lastLocation)
-                    {
-                        currentArea.append(ping: pingUpdate)
-                        locationAreas[locationAreas.endIndex - 1] = currentArea
+                    if firstPingTimestamp == nil {
+                        firstPingTimestamp = pingUpdate.timestamp
                     }
-
-                case .location(let locationUpdate):
-                    locations.append(locationUpdate)
-                    locationAccuracy = String(format: "%.2fm", locationUpdate.horizontalAccuracy)
-                    let currentRadioTechnology = currentRadioTechnology()
-                    latestTechnology = currentRadioTechnology ?? "N/A"
-
-                    guard isLocationPreciseEnough(locationUpdate) else {
+                    guard !wasInsideInaccurateLocationWindow(pingUpdate) else {
                         continue
                     }
+                    pingResults.append(pingUpdate)
 
-                    let currentArea = currentArea
-                    if var currentArea {
-                        if currentArea.startingLocation.distance(from: locationUpdate) >= fenceRadius {
-                            let newArea = LocationArea(startingLocation: locationUpdate, technology: currentRadioTechnology)
-                            locationAreas.append(newArea)
+                    if var (fence, idx) = fences.fence(at: pingUpdate.timestamp) {
+                        fence.append(ping: pingUpdate)
+                        fences[idx] = fence
+                    }
+                case .location(let locationUpdate):
+                    let location = locationUpdate.location
+                    locations.append(location)
+                    locationAccuracy = String(format: "%.2fm", location.horizontalAccuracy)
+                    let currentRadioTechnology = currentRadioTechnology.technologyCode()
+                    latestTechnology = displayValue(forRadioTechnology: currentRadioTechnology ?? "N/A")
+
+                    guard isLocationPreciseEnough(location) else {
+                        startInaccurateLocationWidnowIfNeeded(at: location.timestamp)
+                        continue
+                    }
+                    stopInaccurateLocationWindow(at: location.timestamp)
+
+                    let currentFence = currentFence
+                    if var currentFence {
+                        if currentFence.startingLocation.distance(from: location) >= fenceRadius {
+                            let newFence = Fence(
+                                startingLocation: location,
+                                dateEntered: locationUpdate.timestamp,
+                                technology: currentRadioTechnology
+                            )
+
+                            currentFence.exit(at: locationUpdate.timestamp)
+                            fences[fences.endIndex - 1] = currentFence
+
+                            try? persistenceService.save(currentFence)
+
+                            fences.append(newFence)
                         } else {
-                            currentArea.append(location: locationUpdate)
-                            currentRadioTechnology.map { currentArea.append(technology: $0) }
-                            locationAreas[locationAreas.endIndex - 1] = currentArea
+                            currentFence.append(location: location)
+                            currentRadioTechnology.map { currentFence.append(technology: $0) }
+                            fences[fences.endIndex - 1] = currentFence
                         }
                     } else {
-                        let newArea = LocationArea(startingLocation: locationUpdate, technology: currentRadioTechnology)
-                        locationAreas.append(newArea)
+                        fences.append(.init(
+                            startingLocation: location,
+                            dateEntered: locationUpdate.timestamp,
+                            technology: currentRadioTechnology
+                        ))
                     }
                 }
             }
@@ -137,33 +254,29 @@ protocol SendCoverageResultsService {
     private func start() async {
         guard !isStarted else { return }
         isStarted = true
-        locationAreas.removeAll()
+        testStartTime = timeNow()
+        fences.removeAll()
         locations.removeAll()
 
         backgroundActivity = CLBackgroundActivitySession()
 
-        await iterate(updates)
-    }
-
-    private func currentRadioTechnology() -> String? {
-        let netinfo = CTTelephonyNetworkInfo()
-        var radioAccessTechnology: String?
-
-        if let dataIndetifier = netinfo.dataServiceIdentifier {
-            radioAccessTechnology = netinfo.serviceCurrentRadioAccessTechnology?[dataIndetifier]
-        }
-        return radioAccessTechnology
+        await iterate(updates())
     }
 
     private func stop() async {
         isStarted = false
+        testStartTime = nil
         locationAccuracy = "N/A"
-        latestPing = "N/A"
         latestTechnology = "N/A"
 
-        if !locationAreas.isEmpty {
+        if !fences.isEmpty {
+            // save last unexited fence into the persistence layer
+            if let lastFence = fences.last, lastFence.dateExited == nil {
+                try? persistenceService.save(lastFence)
+            }
+
             do {
-                try await sendResultsService.send(areas: locationAreas)
+                try await sendResultsService.send(fences: fences)
             } catch {
                 // TODO: display error
             }
@@ -180,6 +293,182 @@ protocol SendCoverageResultsService {
 
     private func isLocationPreciseEnough(_ location: CLLocation) -> Bool {
         location.horizontalAccuracy <= minimumLocationAccuracy
+    }
+}
+
+// functionality related to `InaccurateLocationWindow` = a time window in which location updates accuracy was below
+// required threshold. In such situations, we want the received ping updates to be ignored, not be assigned to any fence
+// since we do not know for sure, where we are located
+private extension NetworkCoverageViewModel {
+    struct InaccurateLocationWindow {
+        let begin: Date
+        private(set) var end: Date?
+
+        init(begin: Date) {
+            self.begin = begin
+            self.end = nil
+        }
+
+        mutating func end(at endDate: Date) {
+            self.end = endDate
+        }
+    }
+
+    private func startInaccurateLocationWidnowIfNeeded(at date: Date) {
+        if let lastInterval = inaccurateLocationsWindows.last, lastInterval.end == nil {
+            // we are inside "ignore pings window", do nothing
+        } else {
+            // start new "ignore pings window"
+            inaccurateLocationsWindows.append(.init(begin: date))
+        }
+    }
+
+    private func stopInaccurateLocationWindow(at date: Date) {
+        if let lastInterval = inaccurateLocationsWindows.last, lastInterval.end == nil {
+            inaccurateLocationsWindows[inaccurateLocationsWindows.count - 1].end(at: date)
+        }
+    }
+
+    private func wasInsideInaccurateLocationWindow(_ pingUpdate: PingResult) -> Bool {
+        !inaccurateLocationsWindows
+            .filter { ($0.end == nil || $0.end! > pingUpdate.timestamp) &&  $0.begin < pingUpdate.timestamp }
+            .isEmpty
+    }
+}
+
+private extension NetworkCoverageViewModel {
+    private func fenceItem(from fence: Fence) -> FenceItem {
+        .init(
+            id: fence.id,
+            date: fence.dateEntered,
+            coordinate: fence.startingLocation.coordinate,
+            technology: fence.significantTechnology?.radioTechnologyDisplayValue ?? "N/A",
+            isSelected: selectedFence?.id == fence.id,
+            isCurrent: currentFence?.id == fence.id,
+            color: color(for: fence.significantTechnology)
+        )
+    }
+
+    private func fenceDetail(from fence: Fence) -> FenceDetail {
+        .init(
+            id: fence.id,
+            date: selectedItemDateFormatter.string(from: fence.dateEntered),
+            technology: fence.significantTechnology?.radioTechnologyDisplayValue ?? "N/A",
+            averagePing: fence.averagePing.map { "\($0) ms" } ?? "",
+            color: color(for: fence.significantTechnology)
+        )
+    }
+
+    private func color(for technology: String?) -> Color {
+        .init(uiColor: .byResultClass(technology?.radioTechnologyColorClassification))
+    }
+
+    private func latestPingValue() -> String {
+        guard let startTimestamp = firstPingTimestamp else { return "N/A" }
+
+        let lastTimestamp = pingResults
+            .sorted { $0.timestamp < $1.timestamp }
+            .last?.timestamp
+
+        guard let lastTimestamp else { return "N/A" }
+
+        var currentRefreshIntervalStartTimestamp = startTimestamp
+        var lastCompletedRefreshIntervalStartTimestamp: Date?
+        while currentRefreshIntervalStartTimestamp.addingTimeInterval(refreshInterval) < lastTimestamp {
+            lastCompletedRefreshIntervalStartTimestamp = currentRefreshIntervalStartTimestamp
+            currentRefreshIntervalStartTimestamp = currentRefreshIntervalStartTimestamp.addingTimeInterval(refreshInterval)
+        }
+
+        guard let lastCompletedRefreshIntervalStartTimestamp else {
+            return "-"
+        }
+        let averagePing = pingResults
+            .filter { $0.timestamp >= lastCompletedRefreshIntervalStartTimestamp && $0.timestamp < currentRefreshIntervalStartTimestamp }
+            .compactMap { $0.interval }
+            .map(\.milliseconds)
+            .average
+
+        return "\(Int(averagePing.rounded())) ms"
+    }
+
+    func displayValue(forRadioTechnology technology: String) -> String {
+        technology.radioTechnologyDisplayValue ?? technology
+    }
+}
+
+extension CLLocation: @retroactive Identifiable {
+    public var id: String { "\(coordinate.latitude),\(coordinate.longitude)" }
+}
+
+extension PingResult {
+    var displayValue: String {
+        switch self.result {
+        case .interval(let duration):
+            "\(duration.milliseconds) ms"
+        case .error:
+            "err"
+        }
+    }
+}
+
+extension String {
+    var radioTechnologyDisplayValue: String? {
+        if
+            let code = radioTechnologyCode,
+            let celularCodeDescription = RMBTNetworkTypeConstants.cellularCodeDescriptionDictionary[code] {
+            return celularCodeDescription.radioTechnologyDisplayValue
+        } else {
+            return nil
+        }
+    }
+
+    var radioTechnologyColorClassification: Int? {
+        if
+            let code = radioTechnologyCode,
+            let celularCodeDescription = RMBTNetworkTypeConstants.cellularCodeDescriptionDictionary[code] {
+            return celularCodeDescription.radioTechnologyColorClassification
+        } else {
+            return nil
+        }
+    }
+}
+
+extension RMBTNetworkTypeConstants.NetworkType {
+    var radioTechnologyDisplayValue: String {
+        switch self {
+        case .type2G: "2G"
+        case .type3G: "3G"
+        case .type4G: "4G"
+        case .type5G, .type5GNSA, .type5GAvailable: "5G"
+        case .wlan, .lan, .bluetooth, .unknown, .browser: "--"
+        }
+    }
+
+    var radioTechnologyColorClassification: Int? {
+        switch self {
+        case .type2G: 1
+        case .type3G: 2
+        case .type4G: 3
+        case .type5G, .type5GNSA, .type5GAvailable: 4
+        case .wlan, .lan, .bluetooth, .unknown, .browser: nil
+        }
+    }
+}
+
+private extension [Fence] {
+    func fence(at timestamp: Date) -> (Fence, Self.Index)? {
+        let reversedFences = reversed()
+        let reversedIdx = reversedFences.firstIndex {
+            if let dateExited = $0.dateExited {
+                $0.dateEntered < timestamp && dateExited > timestamp
+            } else {
+                $0.dateEntered < timestamp
+            }
+        }
+        return reversedIdx.map {
+            let baseIdx = index(before: $0.base)
+            return (self[baseIdx], baseIdx)
+        }
     }
 }
 
