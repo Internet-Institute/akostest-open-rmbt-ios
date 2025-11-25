@@ -6,7 +6,9 @@ inhibit_all_warnings!
 use_frameworks!
 
 target 'RMBT' do
-  pod 'Alamofire', '= 5.0.0-rc.2'
+  # Explicitly pin to the pre-release version that Podfile.lock references
+  # to satisfy CocoaPods' requirement for installing pre-release pods.
+  pod 'Alamofire', '5.0.0-rc.2'
   pod 'AlamofireObjectMapper'
   pod 'XCGLogger'
   pod 'CocoaAsyncSocket'
@@ -40,4 +42,10 @@ target 'RMBT' do
       end
     end
   end
+end
+
+# Ensure test target can build the app + pod graph for UI/unit tests
+target 'RMBTTests' do
+  inherit! :complete
+  # Add test-only pods here if ever needed (e.g., 'Nimble', 'Quick').
 end

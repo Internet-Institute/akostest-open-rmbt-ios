@@ -104,14 +104,14 @@ class RMBTConnectivity: NSObject {
     }
 
     func isEqual(to connectivity: RMBTConnectivity?) -> Bool {
-        if (connectivity == self) { return true }
-        guard let connectivity = connectivity else {
-            return false
-        }
+        guard let connectivity = connectivity else { return false }
+        if connectivity === self { return true }
 
-        return ((connectivity.networkTypeDescription == self.networkTypeDescription &&
-                 connectivity.dualSim && self.dualSim) ||
-                (connectivity.networkTypeDescription == self.networkTypeDescription && connectivity.networkName == self.networkName))
+        if connectivity.networkType != networkType { return false }
+        if connectivity.networkName != networkName { return false }
+        if connectivity.cellularCode != cellularCode { return false }
+        if connectivity.bssid != bssid { return false }
+        return true
     }
 
     // Gets byte counts from the network interface used for the connectivity.
@@ -189,6 +189,9 @@ class RMBTConnectivity: NSObject {
         
         if let dataIndetifier = netinfo.dataServiceIdentifier {
             radioAccessTechnology = netinfo.serviceCurrentRadioAccessTechnology?[dataIndetifier]
+            Log.logger.debug("updateCellularInfo service=\(dataIndetifier) radio=\(radioAccessTechnology ?? "nil")")
+        } else {
+            Log.logger.debug("updateCellularInfo service identifier missing")
         }
 
         networkName = nil
@@ -197,6 +200,9 @@ class RMBTConnectivity: NSObject {
         if let radioAccessTechnology {
             cellularCode = cellularCodeForCTValue(radioAccessTechnology)
             cellularCodeDescription = cellularCodeDescriptionForCTValue(radioAccessTechnology)
+            Log.logger.debug("updateCellularInfo resolved radio=\(radioAccessTechnology) code=\(cellularCode.map(String.init) ?? "nil") desc=\(cellularCodeDescription ?? "nil")")
+        } else {
+            Log.logger.debug("updateCellularInfo radio value unavailable")
         }
     }
     
@@ -307,21 +313,31 @@ extension String {
     }
 
     var radioTechnologyTypeID: Int? {
-        var table = [
-            CTRadioAccessTechnologyGPRS:         1,
-            CTRadioAccessTechnologyEdge:         2,
-            CTRadioAccessTechnologyWCDMA:        3,
-            CTRadioAccessTechnologyCDMA1x:       4,
-            CTRadioAccessTechnologyCDMAEVDORev0: 5,
-            CTRadioAccessTechnologyCDMAEVDORevA: 6,
-            CTRadioAccessTechnologyHSDPA:        8,
-            CTRadioAccessTechnologyHSUPA:        9,
-            CTRadioAccessTechnologyCDMAEVDORevB: 12,
-            CTRadioAccessTechnologyLTE:          13,
-            CTRadioAccessTechnologyeHRPD:        14,
-            CTRadioAccessTechnologyNRNSA:        41,
-            CTRadioAccessTechnologyNR:           20
-        ]
-        return table[self]
+        return technologyIDTable[self]
+    }
+}
+
+private let technologyIDTable = [
+    CTRadioAccessTechnologyGPRS:         1,
+    CTRadioAccessTechnologyEdge:         2,
+    CTRadioAccessTechnologyWCDMA:        3,
+    CTRadioAccessTechnologyCDMA1x:       4,
+    CTRadioAccessTechnologyCDMAEVDORev0: 5,
+    CTRadioAccessTechnologyCDMAEVDORevA: 6,
+    CTRadioAccessTechnologyHSDPA:        8,
+    CTRadioAccessTechnologyHSUPA:        9,
+    CTRadioAccessTechnologyCDMAEVDORevB: 12,
+    CTRadioAccessTechnologyLTE:          13,
+    CTRadioAccessTechnologyeHRPD:        14,
+    CTRadioAccessTechnologyNRNSA:        41,
+    CTRadioAccessTechnologyNR:           20
+]
+
+extension Int {
+    var radioAccessTechnology: String? {
+        technologyIDTable
+            .filter { $0.value == self }
+            .keys
+            .first
     }
 }

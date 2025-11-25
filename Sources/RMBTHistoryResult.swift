@@ -34,6 +34,25 @@ class RMBTHistoryLoopResult: RMBTHistoryResult {
     }
 }
 
+class RMBTHistoryCoverageResult: RMBTHistoryResult {
+    let historyItem: HistoryItem
+    
+    init(historyItem: HistoryItem) {
+        self.historyItem = historyItem
+        
+        // Convert HistoryItem to dictionary for super.init
+        var responseDict: [String: Any] = [:]
+        responseDict["test_uuid"] = historyItem.testUuid ?? "coverage-test"
+        responseDict["open_test_uuid"] = historyItem.openTestUuid
+        responseDict["loop_uuid"] = historyItem.loopUuid
+        responseDict["time"] = historyItem.time
+        responseDict["time_string"] = historyItem.timeString
+        responseDict["network_type"] = historyItem.networkType
+        
+        super.init(response: responseDict)
+    }
+}
+
 class RMBTHistoryResult: NSObject {
     private(set) var dataState: RMBTHistoryResultDataState = .index
     
@@ -82,7 +101,10 @@ class RMBTHistoryResult: NSObject {
         deviceModel = response["model"] as? String
         timeString = response["time_string"] as? String
             
-        if let time = response["time"] as? Int {
+        if let time = response["time"] as? UInt64 {
+            let t = Double(time) / 1000.0
+            timestamp = Date(timeIntervalSince1970: t)
+        } else if let time = response["time"] as? Int {
             let t = Double(time) / 1000.0
             timestamp = Date(timeIntervalSince1970: t)
         } else {
@@ -227,25 +249,23 @@ class RMBTHistoryResult: NSObject {
                    let long = response["geo_long"] as? Double {
                     self.coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
                 } else {
-                    assert(false, "Can't parse coordinates")
+                    // Coverage tests might not have coordinates - use invalid coordinates instead of asserting
+                    self.coordinate = kCLLocationCoordinate2DInvalid
                 }
 
                 if let measurementResult = response["measurement_result"] as? [String: Any] {
                     if let download = measurementResult["download_kbit"] as? Int {
                         self.downloadSpeedMbpsString = RMBTSpeedMbpsString(Double(download), withMbps: false)
-                    } else {
-                        assert(false, "can't parse download")
-                    }
-                    if let upload = measurementResult["upload_kbit"] as? Int {
-                        self.uploadSpeedMbpsString = RMBTSpeedMbpsString(Double(upload), withMbps: false)
-                    } else {
-                        assert(false, "can't parse upload")
                     }
                     
-                    if let ping = measurementResult["ping_ms"] as? Int {
+                    if let upload = measurementResult["upload_kbit"] as? Int {
+                        self.uploadSpeedMbpsString = RMBTSpeedMbpsString(Double(upload), withMbps: false)
+                    }
+                    
+                    if let ping = measurementResult["ping_ms"] as? Double {
+                        self.shortestPingMillisString = "\(Int(ping))"
+                    } else if let ping = measurementResult["ping_ms"] as? Int {
                         self.shortestPingMillisString = "\(ping)"
-                    } else {
-                        assert(false, "can't parse upload")
                     }
                 }
 

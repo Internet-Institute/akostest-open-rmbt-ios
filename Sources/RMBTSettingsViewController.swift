@@ -524,17 +524,42 @@ extension RMBTSettingsViewController {
     @objc func tapHandler(_ sender: UIGestureRecognizer) {
         _ = UIAlertController.presentAlertDevCode(nil, codeAction: { [weak self] (textField) in
             guard let self = self else { return }
-            
-            guard textField.text == RMBTConfig.ACTIVATE_DEV_CODE || textField.text == RMBTConfig.DEACTIVATE_DEV_CODE else { return }
-            
-            let isEnable = textField.text == RMBTConfig.ACTIVATE_DEV_CODE
-            self.settings.isDevModeEnabled = isEnable
-            self.settings.debugUnlocked = isEnable
-            if !isEnable {
-                self.settings.debugForceIPv6 = false
+            let code = textField.text ?? ""
+
+            // Developer mode codes (existing behavior)
+            if code == RMBTConfig.ACTIVATE_DEV_CODE || code == RMBTConfig.DEACTIVATE_DEV_CODE {
+                let isEnable = code == RMBTConfig.ACTIVATE_DEV_CODE
+                self.settings.isDevModeEnabled = isEnable
+                self.settings.debugUnlocked = isEnable
+                if !isEnable {
+                    self.settings.debugForceIPv6 = false
+                }
+                self.rebindLoopModeSettings()
+                self.tableView.reloadData()
+                return
             }
-            self.rebindLoopModeSettings()
-            self.tableView.reloadData()
+
+            // New: Network Coverage feature flag codes
+            if code == RMBTConfig.ACTIVATE_COVERAGE_FEATURE_CODE || code == RMBTConfig.DEACTIVATE_COVERAGE_FEATURE_CODE {
+                let enableCoverage = code == RMBTConfig.ACTIVATE_COVERAGE_FEATURE_CODE
+                self.settings.coverageFeatureEnabled = enableCoverage
+
+                // Confirmation alert with default system "OK" button
+                let title = NSLocalizedString("Network Coverage", comment: "Alert title for coverage feature toggle")
+                let message = enableCoverage
+                    ? NSLocalizedString("The Network Coverage feature has been enabled.", comment: "Coverage enabled message")
+                    : NSLocalizedString("The Network Coverage feature has been disabled.", comment: "Coverage disabled message")
+
+                _ = UIAlertController.presentAlert(title: title,
+                                                    text: message,
+                                                    cancelTitle: NSLocalizedString("input_setting_dialog_ok", comment: "OK button"),
+                                                    otherTitle: nil,
+                                                    cancelAction: { _ in },
+                                                    otherAction: nil)
+
+                // No immediate UI in Settings depends on this flag; Intro screen updates on return
+                return
+            }
         }, textFieldConfiguration: nil)
     }
     

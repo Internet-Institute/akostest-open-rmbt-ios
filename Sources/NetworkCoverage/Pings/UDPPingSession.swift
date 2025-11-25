@@ -22,6 +22,7 @@ actor UDPPingSession {
         let serverAddress: String
         let serverPort: String
         let token: PingSessionToken
+        let ipVersion: IPVersion?
     }
 
     typealias AbsoluteTimeNanos = UInt64
@@ -41,12 +42,12 @@ actor UDPPingSession {
     private let sessionInitiator: any SessionInitiating
 
     private var udpConnection: any UDPConnectable
-    private var authToken: String?
     private var sequenceNumber: UInt32
     private let timeoutIntervalMs: Int
     private let now: () -> AbsoluteTimeNanos
 
     private var continuations: [UInt32: PingRequest] = [:]
+    private var receiverTask: Task<Void, Never>?
 
     init(
         sessionInitiator: any SessionInitiating,
@@ -63,7 +64,11 @@ actor UDPPingSession {
 
     func initiatePingSession() async throws -> PingSessionToken {
         let sessionInitiation = try await sessionInitiator.initiate()
-        try await udpConnection.start(host: sessionInitiation.serverAddress, port: sessionInitiation.serverPort)
+        try await udpConnection.start(
+            host: sessionInitiation.serverAddress,
+            port: sessionInitiation.serverPort,
+            ipVersion: sessionInitiation.ipVersion
+        )
         return sessionInitiation.token
     }
 
@@ -71,10 +76,15 @@ actor UDPPingSession {
         cleanupExpiredPings()
 
         sequenceNumber &+= 1
+        let currentSequence = sequenceNumber
         var message = Data()
         message.append(Const.requestProtocol.data(using: .ascii)!)
-        message.append(withUnsafeBytes(of: sequenceNumber.bigEndian) { Data($0) })
-        message.append(Data(base64Encoded: authToken)!)
+        message.append(withUnsafeBytes(of: currentSequence.bigEndian) { Data($0) })
+
+        guard let tokenBytes = Data(base64Encoded: authToken) else {
+            throw .needsReinitialization
+        }
+        message.append(tokenBytes)
 
         do {
             try await udpConnection.send(data: message)
@@ -83,16 +93,54 @@ actor UDPPingSession {
         }
 
         do {
-            try await withCheckedThrowingContinuation { continuation in
-                self.continuations[self.sequenceNumber] = .init(sentAt: self.now(), continuation: continuation)
-                Task {
-                    receivedPingResponse(try await udpConnection.receive())
+            try await withTaskCancellationHandler {
+                try await withCheckedThrowingContinuation { continuation in
+                    self.continuations[currentSequence] = .init(sentAt: self.now(), continuation: continuation)
+                    self.startReceiveLoopIfNeeded()
                 }
+            } onCancel: {
+                Task { await self.cancelContinuation(sequence: currentSequence, error: CancellationError()) }
             }
         } catch let error as PingSendingError {
             throw error
         } catch {
             throw .networkIssue
+        }
+    }
+
+    private func startReceiveLoopIfNeeded() {
+        guard receiverTask == nil else { return }
+        receiverTask = Task { [weak self] in
+            guard let self else { return }
+            await self.receiveResponses()
+        }
+    }
+
+    private func receiveResponses() async {
+        defer { receiverTask = nil }
+        while !Task.isCancelled {
+            do {
+                let response = try await udpConnection.receive()
+                receivedPingResponse(response)
+            } catch is CancellationError {
+                break
+            } catch {
+                failPendingRequests(with: .networkIssue)
+                break
+            }
+        }
+    }
+
+    private func failPendingRequests(with error: PingSendingError) {
+        guard !continuations.isEmpty else { return }
+        let pending = continuations
+        continuations.removeAll()
+        pending.forEach { $0.value.continuation.resume(throwing: error) }
+    }
+
+    private func cancelContinuation(sequence: UInt32, error: Error) async {
+        if let request = continuations.removeValue(forKey: sequence) {
+            request.continuation.resume(throwing: error)
         }
     }
 
@@ -106,21 +154,44 @@ actor UDPPingSession {
             $0.load(as: UInt32.self).bigEndian
         }
 
-        guard
-            protocolName == Const.responseProtocol || protocolName == Const.responseErrorProtocol,
-            let sentRequest = continuations[sequenceNumber] else {
-            return
-        }
-        continuations[sequenceNumber] = nil
-
-        if protocolName == Const.responseErrorProtocol {
+        switch protocolName {
+        case Const.responseErrorProtocol:
+            guard let sentRequest = continuations[sequenceNumber] else {
+                Log.logger.debug("UDPPingSession: Ignoring \(protocolName) response for unknown sequence \(sequenceNumber).")
+                return
+            }
+            continuations[sequenceNumber] = nil
             sentRequest.continuation.resume(throwing: PingSendingError.needsReinitialization)
-        } else {
+        case Const.responseProtocol:
+            guard let sentRequest = continuations[sequenceNumber] else {
+                Log.logger.debug("UDPPingSession: Ignoring \(protocolName) response for unknown sequence \(sequenceNumber).")
+                return
+            }
+            continuations[sequenceNumber] = nil
             sentRequest.continuation.resume()
+        default:
+            return
         }
     }
 
     func cleanupExpiredPings() {
-        // walk through `continuations`, use now() to check for request wich are timed out
+        // Walk through `continuations` and resume timed out requests with `.timedOut`.
+        let nowNanos = now()
+        let timeoutNanos = UInt64(max(0, timeoutIntervalMs)) * 1_000_000
+        if timeoutNanos == 0 { return }
+
+        if !continuations.isEmpty {
+            for (seq, request) in continuations {
+                if nowNanos &- request.sentAt >= timeoutNanos {
+                    continuations[seq] = nil
+                    request.continuation.resume(throwing: PingSendingError.timedOut)
+                }
+            }
+        }
+    }
+
+    deinit {
+        failPendingRequests(with: .networkIssue)
+        receiverTask?.cancel()
     }
 }

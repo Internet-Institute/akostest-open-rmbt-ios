@@ -14,10 +14,18 @@ public class SendCoverageResultRequest: BasicRequest {
         final class Location: Mappable {
             private(set) var latitude: Double
             private(set) var longitude: Double
+            private(set) var accuracy: Double?
+            private(set) var altitude: Double?
+            private(set) var heading: Double?
+            private(set) var speed: Double?
 
-            init(latitude: Double, longitude: Double) {
+            init(latitude: Double, longitude: Double, accuracy: Double?, altitude: Double?, heading: Double?, speed: Double?) {
                 self.latitude = latitude
                 self.longitude = longitude
+                self.accuracy = accuracy
+                self.altitude = altitude
+                self.heading = heading
+                self.speed = speed
             }
 
             required init?(map: Map) {
@@ -27,24 +35,49 @@ public class SendCoverageResultRequest: BasicRequest {
             func mapping(map: Map) {
                 latitude        <- map["latitude"]
                 longitude       <- map["longitude"]
+                accuracy        <- map["accuracy"]
+                altitude        <- map["altitude"]
+                heading         <- map["heading"]
+                speed           <- map["speed"]
             }
         }
 
         private(set) var timestamp: UInt64
         private(set) var location: Location
         private(set) var avgPingMilliseconds: Int?
+        private(set) var offsetMiliseconds: Int
+        private(set) var durationMiliseconds: Int?
         private(set) var technology: String?
         private(set) var technology_id: Int?
+        private(set) var radius_m: Int
 
-        init(fence: Fence) {
+        init(fence: Fence, coverageStartDate: Date) {
             timestamp = UInt64(fence.dateEntered.timeIntervalSince1970 * 1_000_000) // microseconds
+            let loc = fence.startingLocation
+            // Derive optional location extras if available
+            let heading: Double? = loc.course >= 0 ? loc.course : nil
+            let speed: Double? = loc.speed >= 0 ? loc.speed : nil
             location = .init(
-                latitude: fence.startingLocation.coordinate.latitude,
-                longitude: fence.startingLocation.coordinate.longitude
+                latitude: loc.coordinate.latitude,
+                longitude: loc.coordinate.longitude,
+                accuracy: loc.horizontalAccuracy >= 0 ? loc.horizontalAccuracy : nil,
+                altitude: loc.verticalAccuracy >= 0 ? loc.altitude : nil,
+                heading: heading,
+                speed: speed
             )
             avgPingMilliseconds = fence.averagePing
+
+            offsetMiliseconds = Int(fence.dateEntered.timeIntervalSince(coverageStartDate) * 1000)
+
+            if let dateExited = fence.dateExited {
+                durationMiliseconds = Int(dateExited.timeIntervalSince(fence.dateEntered) * 1000)
+            } else {
+                durationMiliseconds = nil
+            }
+
             technology = fence.technologies.last?.radioTechnologyCode
             technology_id = fence.technologies.last?.radioTechnologyTypeID
+            radius_m = Int(fence.radiusMeters)
         }
 
         required init?(map: Map) {
@@ -55,8 +88,11 @@ public class SendCoverageResultRequest: BasicRequest {
             timestamp           <- map["timestamp_microseconds"]
             location            <- map["location"]
             avgPingMilliseconds <- map["avg_ping_ms"]
+            offsetMiliseconds   <- map["offset_ms"]
+            durationMiliseconds <- map["duration_ms"]
             technology          <- map["technology"]
             technology_id       <- map["technology_id"]
+            radius_m            <- map["radius_m"]
         }
     }
 
@@ -76,8 +112,8 @@ public class SendCoverageResultRequest: BasicRequest {
         clientUUID <- map["client_uuid"]
     }
 
-    init(fences: [Fence], testUUID: String) {
-        self.fences = fences.map(CoverageFence.init)
+    init(fences: [Fence], testUUID: String, coverageStartDate: Date) {
+        self.fences = fences.map { CoverageFence(fence: $0, coverageStartDate: coverageStartDate) }
         self.testUUID = testUUID
         super.init()
     }
@@ -98,14 +134,21 @@ class CoverageMeasurementSubmitResponse: BasicResponse {
 struct ControlServerCoverageResultsService: SendCoverageResultsService {
     enum Failure: Error {
         case missingTestUUID
+        case missingStartDate
     }
 
     let controlServer: RMBTControlServer
     let testUUID: () -> String?
+    let startDate: () -> Date?
 
-    init(controlServer: RMBTControlServer, testUUID: @escaping @autoclosure () -> String?) {
+    init(
+        controlServer: RMBTControlServer,
+        testUUID: @escaping @Sendable @autoclosure () -> String?,
+        startDate: @escaping @Sendable @autoclosure () -> Date?
+    ) {
         self.controlServer = controlServer
         self.testUUID = testUUID
+        self.startDate = startDate
     }
 
     func send(fences: [Fence]) async throws {
@@ -113,9 +156,13 @@ struct ControlServerCoverageResultsService: SendCoverageResultsService {
             throw Failure.missingTestUUID
         }
 
+        guard let coverageStartDate = self.startDate() else {
+            throw Failure.missingStartDate
+        }
+
         _ = try await withCheckedThrowingContinuation { continuation in
             controlServer.submitCoverageResult(
-                .init(fences: fences, testUUID: testUUID),
+                .init(fences: fences, testUUID: testUUID, coverageStartDate: coverageStartDate),
                 acceptableStatusCodes: NetworkCoverageFactory.acceptableSubmitResultsRequestStatusCodes
             ) { response in
                 continuation.resume(returning: response)
