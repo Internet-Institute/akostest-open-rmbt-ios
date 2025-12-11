@@ -10,6 +10,7 @@ import UIKit
 import BlocksKit
 import CoreLocation
 import SwiftUI
+import NetworkExtension
 
 class RMBTIntroViewController: UIViewController {
     private let showTosSegue = "show_tos"
@@ -20,6 +21,8 @@ class RMBTIntroViewController: UIViewController {
     private var isLoopMode: Bool {
         return RMBTSettings.shared.loopMode
     }
+    
+    private var cachedSSID: String? = NSLocalizedString("Unknown", comment: "");
 
     private lazy var landscapeView: RMBTIntroPortraitView = {
         let view = RMBTIntroLandscapeView.view()
@@ -72,6 +75,7 @@ class RMBTIntroViewController: UIViewController {
         view.settingsButtonHandler = {
             self.performSegue(withIdentifier: self.showSettingsSegue, sender: self)
         }
+        
     }
 
     private let connectivityService = ConnectivityService()
@@ -160,6 +164,7 @@ class RMBTIntroViewController: UIViewController {
         self.navigationController?.tabBarController?.tabBar.items?[2].title = NSLocalizedString("Statistics", comment: "")
         self.navigationController?.tabBarController?.tabBar.items?[3].title = NSLocalizedString("Map", comment: "")
     
+        fetchNetworkName()
         
         NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
 
@@ -444,7 +449,36 @@ class RMBTIntroViewController: UIViewController {
         if connectivity?.networkType == .cellular {
             return connectivity?.networkName
         }
-        return connectivity?.networkName ?? .unknown
+        //return connectivity?.networkName ?? .unknown
+
+        if connectivity?.networkName == nil {
+            return cachedSSID
+        } else {
+            return connectivity?.networkName ?? .unknown
+        }
+
+    }
+    
+    func fetchNetworkName() {
+
+        Task {
+            cachedSSID = await readSSID()
+            self.updateStates()
+        }
+
+    }
+
+    func readSSID() async -> String? {
+        
+        return await withCheckedContinuation { continuation in
+            NEHotspotNetwork.fetchCurrent { network in
+                if let network = network {
+                    continuation.resume(returning: network.ssid)
+                } else {
+                    continuation.resume(returning: .unknown)
+                }
+            }
+        }
     }
 
     private func updateStates() {
@@ -600,6 +634,7 @@ private extension String {
     static let noNetworkAvailable = NSLocalizedString("No network connection available", comment: "");
     static let unknown = NSLocalizedString("Unknown", comment: "");
 
+
     static let localIP = NSLocalizedString("private_ip_address", comment: "");
     static let externalIP = NSLocalizedString("public_ip_address", comment: "");
 
@@ -624,7 +659,8 @@ private extension UIImage {
 
 private extension UIColor {
     static let noNetworkAvailable = UIColor(red: 242.0 / 255, green: 243.0 / 255, blue: 245.0 / 255, alpha: 1.0)
-    static let networkAvailable = UIColor(red: 0.0 / 255, green: 113.0 / 255, blue: 215.0 / 255, alpha: 1.0)
+    //static let networkAvailable = UIColor(red: 0.0 / 255, green: 113.0 / 255, blue: 215.0 / 255, alpha: 1.0)
+    static let networkAvailable = UIColor.white
 
     static let noNetworkTypeAvailable = UIColor(red: 66.0 / 255, green: 66.0 / 255, blue: 66.0 / 255, alpha: 0.4)
     static let networkTypeAvailable = UIColor(red: 1, green: 1, blue: 1, alpha: 0.4)
