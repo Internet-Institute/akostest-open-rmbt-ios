@@ -122,12 +122,14 @@ extension RMBTControlServer {
                     }
 
                     if let ipv4Server = set.urls?.ipv4IpOnly,
-                       let url = URL(string: "https://\(ipv4Server)\(RMBTConfig.shared.RMBT_CONTROL_SERVER_PATH)") {
+                       //let url = URL(string: "https://\(ipv4Server)\(RMBTConfig.shared.RMBT_CONTROL_SERVER_PATH)") {
+                       let url = URL(string: ipv4Server + RMBTConfig.shared.RMBT_CONTROL_SERVER_PATH ) {
                         self.ipv4 = url
                     }
 
                     if let ipv6Server = set.urls?.ipv6IpOnly,
-                       let url = URL(string: "https://\(ipv6Server)\(RMBTConfig.shared.RMBT_CONTROL_SERVER_PATH)") {
+                       //let url = URL(string: "https://\(ipv6Server)\(RMBTConfig.shared.RMBT_CONTROL_SERVER_PATH)") {
+                       let url = URL(string: ipv6Server + RMBTConfig.shared.RMBT_CONTROL_SERVER_PATH ) {
                         self.ipv6 = url
                     }
 
