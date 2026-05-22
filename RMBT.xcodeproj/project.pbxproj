@@ -39,7 +39,7 @@
 		498581612EAA7982008C11A7 /* TestCoverageResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498581602EAA7982008C11A7 /* TestCoverageResultView.swift */; };
 		498581632EAB4F41008C11A7 /* FencePersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498581622EAB4F41008C11A7 /* FencePersistenceTests.swift */; };
 		498581DB2EAD0564008C11A7 /* CleanupDuringMeasurementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498581DA2EAD0564008C11A7 /* CleanupDuringMeasurementTests.swift */; };
-		498660252D88425A005E258C /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		498660252D88425A005E258C /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		49A0B1C92F2E1234007ABCDE /* AFNetworkLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A0B1C82F2E1234007ABCDE /* AFNetworkLogger.swift */; };
 		49B28C762BA09D6A00697BB4 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B28C752BA09D6A00697BB4 /* Keychain.swift */; };
 		49B28C792BA1914E00697BB4 /* RMBTTestExportCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49B28C782BA1914E00697BB4 /* RMBTTestExportCell.xib */; };
@@ -1876,9 +1876,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-RMBT/Pods-RMBT-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-RMBT/Pods-RMBT-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
