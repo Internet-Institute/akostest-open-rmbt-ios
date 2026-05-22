@@ -163,8 +163,6 @@ class RMBTIntroViewController: UIViewController {
         self.navigationController?.tabBarController?.tabBar.items?[1].title = NSLocalizedString("History", comment: "")
         self.navigationController?.tabBarController?.tabBar.items?[2].title = NSLocalizedString("Statistics", comment: "")
         self.navigationController?.tabBarController?.tabBar.items?[3].title = NSLocalizedString("Map", comment: "")
-    
-        fetchNetworkName()
         
         NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
 
@@ -173,6 +171,7 @@ class RMBTIntroViewController: UIViewController {
         self.updateOrientation(to: UIApplication.shared.windowSize)
 
         NotificationCenter.default.addObserver(self, selector: #selector(forceUpdateNetwork(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(locationDidUpdate(_:)), name: .RMBTLocationTracker, object: nil)
 
         RMBTControlServer.shared.updateWithCurrentSettings { [weak self] in
             guard let self = self else { return }
@@ -190,6 +189,12 @@ class RMBTIntroViewController: UIViewController {
         RMBTLocationTracker.shared.startAfterDeterminingAuthorizationStatus({
             self.connectivityTracker.forceUpdate()
         })
+    }
+
+    @objc private func locationDidUpdate(_ sender: Any) {
+        DispatchQueue.main.async { [weak self] in
+            self?.updateCoverageTint()
+        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -430,6 +435,8 @@ class RMBTIntroViewController: UIViewController {
             currentView.networkMobileClassImage = nil
         }
 
+        updateCoverageTint()
+
         if let popup = self.currentPopupViewController {
             switch popup.popupType {
             case .ipv4:
@@ -445,40 +452,22 @@ class RMBTIntroViewController: UIViewController {
         }
     }
 
+    private func updateCoverageTint() {
+        let canStart = CoverageButtonGate.canStart(
+            accuracy: RMBTLocationTracker.shared.location?.horizontalAccuracy,
+            networkType: connectivity?.networkType,
+            minAccuracy: NetworkCoverageFactory.minimumLocationAccuracy
+        )
+        currentView.coverageTintColor = canStart ? .ipAvailable : .coverageUnavailable
+#if DEBUG
+        currentView.isCoverageEnabled = true
+#else
+        currentView.isCoverageEnabled = canStart
+#endif
+    }
+
     private var networkName: String? {
-        if connectivity?.networkType == .cellular {
-            return connectivity?.networkName
-        }
-        //return connectivity?.networkName ?? .unknown
-
-        if connectivity?.networkName == nil {
-            return cachedSSID
-        } else {
-            return connectivity?.networkName ?? .unknown
-        }
-
-    }
-    
-    func fetchNetworkName() {
-
-        Task {
-            cachedSSID = await readSSID()
-            self.updateStates()
-        }
-
-    }
-
-    func readSSID() async -> String? {
-        
-        return await withCheckedContinuation { continuation in
-            NEHotspotNetwork.fetchCurrent { network in
-                if let network = network {
-                    continuation.resume(returning: network.ssid)
-                } else {
-                    continuation.resume(returning: .unknown)
-                }
-            }
-        }
+        connectivity?.networkName
     }
 
     private func updateStates() {
@@ -671,4 +660,5 @@ private extension UIColor {
     static let ipNotAvailable = UIColor(red: 245.0 / 255.0, green: 0.0 / 255.0, blue: 28.0/255.0, alpha: 1.0)
     static let ipSemiAvailable = UIColor(red: 255.0 / 255.0, green: 186.0 / 255.0, blue: 0, alpha: 1.0)
     static let ipAvailable = UIColor(red: 89.0 / 255.0, green: 178.0 / 255.0, blue: 0, alpha: 1.0)
+    static let coverageUnavailable = UIColor.systemGray
 }

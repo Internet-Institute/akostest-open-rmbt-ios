@@ -143,6 +143,9 @@ struct SessionInitializedUpdate: Hashable {
     @ObservationIgnored private var autoStopDueToInaccuracyTask: Task<Void, Never>?
     @ObservationIgnored private var hasEverHadAccurateLocation: Bool = false
     @ObservationIgnored private var isOnWiFi: Bool = false
+    @ObservationIgnored private var currentTestUUID: String?
+    @ObservationIgnored private var dirtyFenceIDs: Set<UUID> = []
+    @ObservationIgnored private var lastLoggedRadioTech: String?
 
     // Dependencies
     @ObservationIgnored private let currentRadioTechnology: any CurrentRadioTechnologyService
@@ -152,25 +155,23 @@ struct SessionInitializedUpdate: Hashable {
     @ObservationIgnored private let clock: any Clock<Duration>
     @ObservationIgnored private let ipVersionProvider: () -> IPVersion?
     @ObservationIgnored private let connectionsCountProvider: () -> Int
+    @ObservationIgnored private let networkTypeProvider: (any CurrentNetworkTypeProvider)?
     @ObservationIgnored private let renderingConfiguration: FencesRenderingConfiguration
+    @ObservationIgnored private let fenceRadiusCalculator: FenceRadiusCalculator
     @ObservationIgnored private var visibleRegion: MKCoordinateRegion?
     @ObservationIgnored private var isUpdatingRenderedFences = false
 
     @ObservationIgnored private(set) var fences: [Fence] {
         didSet {
-            // TODO: optimize: only very last fence is likely to need update, previous fences shoud remain untouched
-            // so no need to mapp all `fences` into fences items, but can cache previous mappings and update only the very last one
-            let newFences = fences.map(fenceItem)
-            if fenceItems != newFences {
-                fenceItems = newFences
-            }
+            // TODO: optimize: only very last fence is likely to need update, previous fences should remain untouched
+            // so no need to map all `fences` into fence items, but can cache previous mappings and update only the very last one
+            rebuildFenceItems()
         }
     }
 
     @ObservationIgnored private var currentFence: Fence? { fences.last }
 
     // Observable state
-    var fenceRadius: CLLocationDistance = 20
     var minimumLocationAccuracy: CLLocationDistance
     private(set) var isStarted = false
     private(set) var errorMessage: String?
@@ -179,6 +180,7 @@ struct SessionInitializedUpdate: Hashable {
     private(set) var latestPing: String = "N/A"
     private(set) var latestTechnology = "N/A"
     private(set) var locationAccuracy = "N/A"
+    private(set) var currentDynamicRadius: CLLocationDistance?
     private(set) var fenceItems: [FenceItem] = [] {
         didSet { updateRenderedFencesIfNeeded() }
     }
@@ -198,8 +200,9 @@ struct SessionInitializedUpdate: Hashable {
             selectedFenceDetail = selectedFence.map {
                 .init(fence: $0, selectedItemDateFormatter: selectedItemDateFormatter)
             }
-            // Recreate fenceItems to update selection state
-            fenceItems = fences.map(fenceItem)
+            // Recreate fenceItems to update selection state; must filter dirty
+            // fences so they don't flash back onto the map during a tap.
+            rebuildFenceItems()
         }
     }
     private(set) var selectedFenceDetail: FenceDetail?
@@ -230,7 +233,9 @@ struct SessionInitializedUpdate: Hashable {
         maxTestDuration: @escaping () -> TimeInterval,
         ipVersionProvider: @escaping () -> IPVersion? = { nil },
         connectionsCountProvider: @escaping () -> Int = { 1 },
-        renderingConfiguration: FencesRenderingConfiguration = .default
+        networkTypeProvider: (any CurrentNetworkTypeProvider)? = nil,
+        renderingConfiguration: FencesRenderingConfiguration = .default,
+        fenceRadiusCalculator: FenceRadiusCalculator = .init(minimumRadius: 15)
     ) {
         self.refreshInterval = refreshInterval
         self.minimumLocationAccuracy = minimumLocationAccuracy
@@ -245,7 +250,9 @@ struct SessionInitializedUpdate: Hashable {
         self.maxTestDuration = maxTestDuration
         self.ipVersionProvider = ipVersionProvider
         self.connectionsCountProvider = connectionsCountProvider
+        self.networkTypeProvider = networkTypeProvider
         self.renderingConfiguration = renderingConfiguration
+        self.fenceRadiusCalculator = fenceRadiusCalculator
 
         selectedItemDateFormatter = {
             let dateFormatter = DateFormatter()
@@ -282,7 +289,8 @@ struct SessionInitializedUpdate: Hashable {
         maxTestDuration: @escaping () -> TimeInterval,
         ipVersionProvider: @escaping () -> IPVersion? = { nil },
         connectionsCountProvider: @escaping () -> Int = { 1 },
-        renderingConfiguration: FencesRenderingConfiguration = .default
+        renderingConfiguration: FencesRenderingConfiguration = .default,
+        fenceRadiusCalculator: FenceRadiusCalculator = .init(minimumRadius: 15)
     ) {
         self.init(
             fences: fences,
@@ -310,7 +318,8 @@ struct SessionInitializedUpdate: Hashable {
             maxTestDuration: maxTestDuration,
             ipVersionProvider: ipVersionProvider,
             connectionsCountProvider: connectionsCountProvider,
-            renderingConfiguration: renderingConfiguration
+            renderingConfiguration: renderingConfiguration,
+            fenceRadiusCalculator: fenceRadiusCalculator
         )
     }
 
@@ -339,14 +348,43 @@ struct SessionInitializedUpdate: Hashable {
     private func processUpdate(_ update: Update) async {
         switch update {
         case .sessionInitialized(let sessionUpdate):
-            try? await persistenceService.assignTestUUIDAndAnchor(
-                sessionUpdate.sessionID,
-                anchorNow: sessionUpdate.timestamp
-            )
+            let newUUID = sessionUpdate.sessionID
+            let previousUUID = currentTestUUID
+            currentTestUUID = newUUID
+
+            if let previousUUID {
+                Log.logger.info("Session reinitialized: \(previousUUID) → \(newUUID)")
+            } else {
+                Log.logger.info("Session initialized with UUID: \(newUUID)")
+            }
+
+            // If this is a reinitialization (not first UUID), close the active fence
+            // and persist it BEFORE assignTestUUIDAndAnchor — because save() writes
+            // to the latest unfinished session, which is still the old one at this point.
+            if previousUUID != nil {
+                if var activeFence = fences.last, activeFence.dateExited == nil {
+                    activeFence.exit(at: sessionUpdate.timestamp)
+                    fences[fences.endIndex - 1] = activeFence
+                    await persistIfClean(activeFence)
+                    Log.logger.info("Closed active fence on previous session: \(previousUUID!)")
+                }
+            }
+
+            // NOW create the new session — this finalizes the old one in persistence
+            try? await persistenceService.assignTestUUIDAndAnchor(newUUID, anchorNow: sessionUpdate.timestamp)
+
+            // Retro-tag any nil-tagged fences with the new UUID (offline start scenario)
+            let nilFenceIndices = fences.indices.filter { fences[$0].sessionUUID == nil }
+            if !nilFenceIndices.isEmpty {
+                for idx in nilFenceIndices {
+                    fences[idx].sessionUUID = newUUID
+                }
+                Log.logger.info("Retro-tagged \(nilFenceIndices.count) fence(s) with UUID: \(newUUID)")
+            }
 
         case .ping(let pingUpdate):
             guard !isOnWiFi else { return }
-            
+
             if firstPingTimestamp == nil {
                 firstPingTimestamp = pingUpdate.timestamp
             }
@@ -362,8 +400,21 @@ struct SessionInitializedUpdate: Hashable {
             }
             
         case .location(let locationUpdate):
+            // Poll network type on every location update to catch background WiFi transitions
+            if let polledType = networkTypeProvider?.currentNetworkType() {
+                let changed = (polledType == .wifi) != isOnWiFi
+                if changed {
+                    Log.logger.info("[NetworkPoll] detected network change via poll: \(polledType)")
+                }
+                handleNetworkTypeChange(polledType)
+            }
+
             let location = locationUpdate.location
             let radioTechnologyCode = currentRadioTechnology.technologyCode()
+            if radioTechnologyCode != lastLoggedRadioTech {
+                Log.logger.info("[NetPath] tech: \(lastLoggedRadioTech ?? "nil") → \(radioTechnologyCode ?? "nil")")
+                lastLoggedRadioTech = radioTechnologyCode
+            }
             locations.append(location)
             locationAccuracy = String(format: "%.2fm", location.horizontalAccuracy)
             latestTechnology = displayValue(forRadioTechnology: radioTechnologyCode ?? "N/A")
@@ -383,39 +434,58 @@ struct SessionInitializedUpdate: Hashable {
                 hasEverHadAccurateLocation = true
             }
 
-            // On Wi‑Fi: update warning/UI only, ignore measurement state/fences
-            guard !isOnWiFi else { return }
+            let newFenceRadius = fenceRadiusCalculator.radius(for: location)
+            currentDynamicRadius = newFenceRadius
 
-            let currentFence = currentFence
-            if var currentFence {
-                if currentFence.startingLocation.distance(from: location) >= fenceRadius {
+            // Treat an already-closed fence (e.g. closed by session reinit) as no active fence
+            let activeFence: Fence? = {
+                guard let last = fences.last, last.dateExited == nil else { return nil }
+                return last
+            }()
+
+            if var activeFence {
+                if activeFence.startingLocation.distance(from: location) >= activeFence.radiusMeters {
                     let newFence = Fence(
                         startingLocation: location,
                         dateEntered: locationUpdate.timestamp,
                         technology: radioTechnologyCode,
                         pings: [],
-                        radiusMeters: fenceRadius
+                        radiusMeters: newFenceRadius,
+                        sessionUUID: currentTestUUID
                     )
 
-                    currentFence.exit(at: locationUpdate.timestamp)
-                    fences[fences.endIndex - 1] = currentFence
+                    activeFence.exit(at: locationUpdate.timestamp)
+                    fences[fences.endIndex - 1] = activeFence
 
-                    try? await persistenceService.save(currentFence)
+                    await persistIfClean(activeFence)
 
+                    if isOnWiFi {
+                        dirtyFenceIDs.insert(newFence.id)
+                    }
+
+                    Log.logger.info("New fence: radius=\(newFenceRadius)m (accuracy=\(location.horizontalAccuracy)m, speed=\(location.speed)m/s, min=\(fenceRadiusCalculator.minimumRadius)m)")
                     fences.append(newFence)
                 } else {
-                    currentFence.append(location: location)
-                    radioTechnologyCode.map { currentFence.append(technology: $0) }
-                    fences[fences.endIndex - 1] = currentFence
+                    activeFence.append(location: location)
+                    radioTechnologyCode.map { activeFence.append(technology: $0) }
+                    fences[fences.endIndex - 1] = activeFence
                 }
             } else {
-                fences.append(.init(
+                let newFence = Fence(
                     startingLocation: location,
                     dateEntered: locationUpdate.timestamp,
                     technology: radioTechnologyCode,
                     pings: [],
-                    radiusMeters: fenceRadius
-                ))
+                    radiusMeters: newFenceRadius,
+                    sessionUUID: currentTestUUID
+                )
+
+                if isOnWiFi {
+                    dirtyFenceIDs.insert(newFence.id)
+                }
+
+                Log.logger.info("First fence: radius=\(newFenceRadius)m (accuracy=\(location.horizontalAccuracy)m, speed=\(location.speed)m/s, min=\(fenceRadiusCalculator.minimumRadius)m)")
+                fences.append(newFence)
             }
         case .networkType(let netUpdate):
             handleNetworkTypeChange(netUpdate.type)
@@ -432,7 +502,15 @@ struct SessionInitializedUpdate: Hashable {
         canCheckForLocationInaccuracyWarning = false
         hasEverHadAccurateLocation = false
         stopTestReasons.removeAll()
-        isOnWiFi = false
+        if let networkTypeProvider, let currentType = networkTypeProvider.currentNetworkType() {
+            handleNetworkTypeChange(currentType)
+        } else {
+            isOnWiFi = false
+        }
+        currentTestUUID = nil
+        currentDynamicRadius = nil
+        dirtyFenceIDs.removeAll()
+        lastLoggedRadioTech = nil
 
         try? await persistenceService.sessionStarted(at: sessionStartDate)
 
@@ -468,7 +546,16 @@ struct SessionInitializedUpdate: Hashable {
         let newIsOnWiFi = (type == .wifi)
         guard newIsOnWiFi != isOnWiFi else { return }
 
+        Log.logger.info("[NetworkType] isOnWiFi changed: \(isOnWiFi) → \(newIsOnWiFi)")
         isOnWiFi = newIsOnWiFi
+
+        // Mark the active fence as dirty on ANY network type change.
+        // Once dirty, the fence is never persisted or sent.
+        if let activeFence = fences.last, activeFence.dateExited == nil {
+            dirtyFenceIDs.insert(activeFence.id)
+            Log.logger.info("Marked fence \(activeFence.id) as dirty (network type changed)")
+        }
+
         if isOnWiFi {
             if !warningPopups.contains(where: { $0 == .wifiWarning }) {
                 warningPopups.append(.wifiWarning)
@@ -484,6 +571,7 @@ struct SessionInitializedUpdate: Hashable {
         testStartTime = nil
         locationAccuracy = "N/A"
         latestTechnology = "N/A"
+        currentDynamicRadius = nil
         warningPopups.removeAll()
         connectionFragmentsCount = 1
 
@@ -502,20 +590,25 @@ struct SessionInitializedUpdate: Hashable {
             if var lastFence = fences.last, lastFence.dateExited == nil {
                 lastFence.exit(at: finalizationDate)
                 fences[fences.endIndex - 1] = lastFence
-                try? await persistenceService.save(lastFence)
+                await persistIfClean(lastFence)
             }
 
-            do {
-                Log.logger.info("Stopping coverage test: sending \(fences.count) fences")
-                
-                try await sendResultsService.send(fences: fences)
-            } catch {
-                // TODO: display error
+            let cleanFences = fences.filter { !dirtyFenceIDs.contains($0.id) }
+            if !cleanFences.isEmpty {
+                do {
+                    Log.logger.info("Stopping coverage test: sending \(cleanFences.count) clean fences (\(fences.count - cleanFences.count) dirty discarded)")
+                    try await sendResultsService.send(fences: cleanFences)
+                } catch {
+                    // TODO: display error
+                }
+            } else {
+                Log.logger.info("Stopping coverage test: all \(fences.count) fences dirty, nothing to send")
             }
         }
 
+        dirtyFenceIDs.removeAll()
+
         try? await persistenceService.sessionFinalized(at: finalizationDate)
-        try? await persistenceService.deleteFinalizedNilUUIDSessions()
     }
 
     func toggleMeasurement() async {
@@ -533,6 +626,11 @@ struct SessionInitializedUpdate: Hashable {
         }
         locationInaccuracyWarningTask?.cancel()
         autoStopDueToInaccuracyTask?.cancel()
+    }
+
+    private func persistIfClean(_ fence: Fence) async {
+        guard !dirtyFenceIDs.contains(fence.id) else { return }
+        try? await persistenceService.save(fence)
     }
 
     private func isLocationPreciseEnough(_ location: CLLocation) -> Bool {
@@ -629,6 +727,13 @@ extension NetworkCoverageViewModel {
 }
 
 fileprivate extension NetworkCoverageViewModel {
+    func rebuildFenceItems() {
+        let newItems = fences.filter { !dirtyFenceIDs.contains($0.id) }.map(fenceItem)
+        if fenceItems != newItems {
+            fenceItems = newItems
+        }
+    }
+
     func updateRenderedFencesIfNeeded() {
         guard !isUpdatingRenderedFences else { return }
         isUpdatingRenderedFences = true
@@ -865,6 +970,10 @@ fileprivate extension NetworkCoverageViewModel {
 }
 
 extension NetworkCoverageViewModel {
+    var currentFenceRadius: CLLocationDistance? {
+        currentFence?.radiusMeters
+    }
+
     var pingProtocolDisplay: String {
         guard isStarted else { return "-" }
         switch ipVersionProvider() {

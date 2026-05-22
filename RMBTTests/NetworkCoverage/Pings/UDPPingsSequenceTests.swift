@@ -155,6 +155,34 @@ struct UDPPingsSequenceTests {
                 with: clock
             )
         }
+
+        @Test func whenMultipleDelayedReinitializationSignalsArriveDuringReinit_thenStartsOnlyOneNewSession() async throws {
+            let clock = TestClock()
+            let pingSender = ReinitializationPingSenderSpy(
+                clock: clock,
+                initiatePingSessionSteps: [
+                    .init(session: "S1", delay: .zero),
+                    .init(session: "S2", delay: .milliseconds(600)),
+                    .init(session: "S3", delay: .zero)
+                ],
+                sendPingSteps: [
+                    .init(delay: .milliseconds(150), outcome: .failure(.needsReinitialization)),
+                    .init(delay: .milliseconds(250), outcome: .failure(.needsReinitialization))
+                ]
+            )
+            let sut = PingMeasurementService.pings2(
+                clock: clock,
+                pingSender: pingSender,
+                now: { Date(timeIntervalSinceReferenceDate: 0) },
+                frequency: .milliseconds(100)
+            )
+
+            let consumer = consume(sut)
+            await clock.advance(by: .milliseconds(550))
+            consumer.cancel()
+
+            #expect(await pingSender.initiatePingSessionCallCount() == 2)
+        }
     }
 }
 
@@ -192,7 +220,7 @@ func expect(
     var capturedElements: [PingResult] = []
     var capturedInstants: [TestClock<Duration>.Instant] = []
     await confirmation(expectedCount: expectedElements.count) { confirmation in
-        Task {
+        let consumer = Task {
             for try await element in sut {
                 capturedInstants.append(clock.now)
                 capturedElements.append(element)
@@ -200,10 +228,20 @@ func expect(
             }
         }
         await clock.advance(by: totalDuration)
+        consumer.cancel()
+        _ = await consumer.result
     }
 
     #expect(capturedElements == expectedElements.map(\.1))
     #expect(capturedInstants.isEqual(to: expectedElements.map { TestClock.Instant(offset: Duration.seconds($0.0)) }))
+}
+
+func consume(_ sut: some PingsAsyncSequence) -> Task<Void, Never> {
+    Task {
+        do {
+            for try await _ in sut {}
+        } catch {}
+    }
 }
 
 final class PingSenderStub: PingSending {
@@ -257,6 +295,76 @@ func makePingResult(_ result: PingResultType) -> PingSenderStub.SendPingResult {
         return .success(.milliseconds(ms))
     case .error(let error):
         return .failure(error)
+    }
+}
+
+actor ReinitializationPingSenderSpy: PingSending {
+    struct InitiatePingSessionStep {
+        let session: String
+        let delay: Duration
+    }
+
+    struct SendPingStep {
+        let delay: Duration
+        let outcome: Result<Void, PingSendingError>
+    }
+
+    private let clock: any Clock<Duration>
+    private var initiatePingSessionSteps: [InitiatePingSessionStep]
+    private var sendPingSteps: [SendPingStep]
+    private var initiatePingSessionCalls = 0
+
+    init(
+        clock: any Clock<Duration>,
+        initiatePingSessionSteps: [InitiatePingSessionStep],
+        sendPingSteps: [SendPingStep]
+    ) {
+        self.clock = clock
+        self.initiatePingSessionSteps = initiatePingSessionSteps
+        self.sendPingSteps = sendPingSteps
+    }
+
+    func initiatePingSession() async throws -> String {
+        initiatePingSessionCalls += 1
+        guard let step = initiatePingSessionSteps.first else {
+            try await clock.sleep(for: .seconds(404))
+            return "unexpected-session"
+        }
+        initiatePingSessionSteps.removeFirst()
+        try await clock.sleep(for: step.delay)
+        return step.session
+    }
+
+    func sendPing(in session: String) async throws(PingSendingError) {
+        guard let step = sendPingSteps.first else {
+            do {
+                try await clock.sleep(for: .seconds(404))
+            } catch is CancellationError {
+                return
+            } catch {
+                return
+            }
+            return
+        }
+        sendPingSteps.removeFirst()
+        do {
+            try await clock.sleep(for: step.delay)
+        } catch is CancellationError {
+            return
+        } catch {
+            return
+        }
+
+        switch step.outcome {
+        case .success:
+            return
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    func initiatePingSessionCallCount() -> Int {
+        initiatePingSessionCalls
     }
 }
 

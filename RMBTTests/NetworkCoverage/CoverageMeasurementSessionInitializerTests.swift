@@ -9,17 +9,20 @@ import Foundation
 
 @Suite("CoverageMeasurementSessionInitializer Tests")
 struct CoverageMeasurementSessionInitializerTests {
-    @Test("WHEN reinitialized THEN previous test UUID is sent as loop UUID")
-    func whenReinitialized_thenLoopUUIDIsChainedToPreviousTestUUID() async throws {
-        let (sut, apiSpy) = makeSUT(testUUIDs: ["T1", "T2"]) 
+    @Test("WHEN reinitialized THEN previous loop UUID is sent as loop UUID")
+    func whenReinitialized_thenLoopUUIDIsChainedToPreviousLoopUUID() async throws {
+        let (sut, apiSpy) = makeSUT(
+            testUUIDs: ["T1", "T2"],
+            loopUUIDs: ["L1", "L2"]
+        )
 
         // First initiation — no loop_uuid
         _ = try await sut.initiate()
         #expect(apiSpy.capturedLoopUUIDs == [nil])
 
-        // Second initiation — must pass loop_uuid = previous test_uuid (T1)
+        // Second initiation — must pass loop_uuid = previous response loop_uuid (L1)
         _ = try await sut.initiate()
-        #expect(apiSpy.capturedLoopUUIDs == [nil, "T1"])
+        #expect(apiSpy.capturedLoopUUIDs == [nil, "L1"])
     }
 
     @Test("WHEN starting sessions THEN lastIPVersion reflects server response and count increases")
@@ -59,75 +62,118 @@ struct CoverageMeasurementSessionInitializerTests {
 
     @Test("GIVEN new initializer instance THEN counter starts at zero")
     func givenNewInitializer_thenCounterStartsAtZero() async throws {
-        let (sut1, _) = makeSUT(testUUIDs: ["A"]) 
+        let (sut1, _) = makeSUT(testUUIDs: ["A"])
         _ = try await sut1.initiate()
         #expect(sut1.udpPingSessionCount == 1)
 
         // New instance must reset count
-        let (sut2, _) = makeSUT(testUUIDs: ["B"]) 
+        let (sut2, _) = makeSUT(testUUIDs: ["B"])
         #expect(sut2.udpPingSessionCount == 0)
     }
 
-    @Test("WHEN offline THEN emits sessionInitialized after going online")
-    func whenOfflineStart_andOnlineBecomesAvailable_thenInitializerEmitsSessionInitialized() async throws {
-        let spy = OfflineThenOnlineControlServerSpy(firstError: NSError(domain: "offline", code: -1009))
-        let db = UserDatabase(useInMemoryStore: true)
-        let online = OnlineStatusServiceStub()
+    @Test("WHEN /coverageRequest fails AND OnlineStatusService later emits true THEN session retries successfully")
+    func whenFirstAttemptFailsAndGoesOnline_thenRetrySucceeds() async throws {
+        let spy = OfflineThenOnlineControlServerSpy(
+            firstError: NSError(domain: "test", code: -1009)
+        )
+        let database = UserDatabase(useInMemoryStore: true)
+        let factory = NetworkCoverageFactory(
+            database: database,
+            dateNow: { Date() },
+            coverageAPIService: spy
+        )
+        let onlineStub = OnlineStatusServiceStub()
+        let sut = factory.makeSessionInitializer(onlineStatusService: onlineStub, retryDelay: .zero)
 
-        let core = CoreSessionInitializer(now: { Date() }, coverageAPIService: spy)
-        let withPersistence = PersistenceAwareSessionInitializer(wrapped: core, database: db)
-        let sut = OnlineAwareSessionInitializer(wrapped: withPersistence, onlineStatusService: online, now: { Date() })
+        let initiationTask = Task { try await sut.startNewSession() }
 
-        // Prepare event capture
-        var receivedUUID: String?
-        let task = Task {
-            for await update in sut.sessionInitializedEvents() {
-                receivedUUID = update.sessionID
-                break
-            }
+        await onlineStub.waitUntilSubscribed()
+        onlineStub.emit(true)
+
+        let credentials = try await initiationTask.value
+        #expect(credentials.testID == "ONLINE-UUID")
+        #expect(sut.lastTestUUID == "ONLINE-UUID")
+    }
+
+    @Test("WHEN online retry fails AND reachability flips on→off→on THEN session is started on the second online signal")
+    func whenRetryFailsAndReachabilityFlips_thenSucceedsOnSecondOnlineSignal() async throws {
+        let spy = FlakyControlServerSpy(failCount: 2, finalTestUUID: "EVENTUAL-UUID")
+        let database = UserDatabase(useInMemoryStore: true)
+        let factory = NetworkCoverageFactory(
+            database: database,
+            dateNow: { Date() },
+            coverageAPIService: spy
+        )
+        let onlineStub = OnlineStatusServiceStub()
+        let sut = factory.makeSessionInitializer(onlineStatusService: onlineStub, retryDelay: .zero)
+
+        let initiationTask = Task { try await sut.startNewSession() }
+
+        await onlineStub.waitUntilSubscribed()
+        onlineStub.emit(true)              // first retry — still fails
+        await spy.waitForCallCount(2)      // observed: failing retry landed at the API
+        onlineStub.emit(false)
+        onlineStub.emit(true)              // second retry — succeeds
+
+        let credentials = try await initiationTask.value
+        #expect(credentials.testID == "EVENTUAL-UUID")
+        #expect(spy.callCount == 3) // 1 initial fail + 2 retries
+    }
+
+    @Test("WHEN /coverageRequest fails AND no OnlineStatusService THEN error is rethrown")
+    func whenFirstAttemptFailsWithoutOnlineService_thenThrows() async throws {
+        let underlying = NSError(domain: "test", code: -1009)
+        let spy = OfflineThenOnlineControlServerSpy(firstError: underlying)
+        let database = UserDatabase(useInMemoryStore: true)
+        let factory = NetworkCoverageFactory(
+            database: database,
+            dateNow: { Date() },
+            coverageAPIService: spy
+        )
+        let sut = factory.makeSessionInitializer(onlineStatusService: nil)
+
+        await #expect(throws: NSError.self) {
+            _ = try await sut.startNewSession()
         }
-
-        // Trigger start in background (will wait for online)
-        Task { _ = try? await sut.startNewSession(loopID: nil) }
-
-        // Give the initializer time to fail and start listening to online events
-        try await Task.sleep(nanoseconds: 10_000_000)
-
-        // Simulate online
-        online.emit(false)
-        online.emit(true)
-
-        // Wait for the event to be processed
-        try await Task.sleep(nanoseconds: 100_000_000)
-        task.cancel()
-
-        #expect(receivedUUID == "ONLINE-UUID")
     }
 }
 
 // MARK: - Test Helpers
 
-private func makeSUT(testUUIDs: [String], ipVersions: [Int?] = []) -> (CoverageMeasurementSessionInitializer, ControlServerSpy) {
-    let spy = ControlServerSpy(enqueuedTestUUIDs: testUUIDs, enqueuedIpVersions: ipVersions)
+private func makeSUT(
+    testUUIDs: [String],
+    loopUUIDs: [String?] = [],
+    ipVersions: [Int?] = []
+) -> (CoverageMeasurementSessionInitializer, ControlServerSpy) {
+    let spy = ControlServerSpy(
+        enqueuedTestUUIDs: testUUIDs,
+        enqueuedLoopUUIDs: loopUUIDs,
+        enqueuedIpVersions: ipVersions
+    )
     let database = UserDatabase(useInMemoryStore: true)
-    let factory = NetworkCoverageFactory(database: database, dateNow: { Date() })
+    let factory = NetworkCoverageFactory(
+        database: database,
+        dateNow: { Date() },
+        coverageAPIService: spy
+    )
     let sut = factory.makeSessionInitializer(onlineStatusService: nil)
 
-    // Replace the core initializer's API service with our spy by creating a new composition
-    let core = CoreSessionInitializer(now: { Date() }, coverageAPIService: spy)
-    let withPersistence = PersistenceAwareSessionInitializer(wrapped: core, database: database)
-    let withOnline = OnlineAwareSessionInitializer(wrapped: withPersistence, onlineStatusService: nil, now: { Date() })
-
-    return (withOnline, spy)
+    return (sut, spy)
 }
 
 private final class ControlServerSpy: CoverageAPIService {
     var enqueuedTestUUIDs: [String]
+    var enqueuedLoopUUIDs: [String?]
     var capturedLoopUUIDs: [String?] = []
     var enqueuedIpVersions: [Int?]
 
-    init(enqueuedTestUUIDs: [String], enqueuedIpVersions: [Int?] = []) {
+    init(
+        enqueuedTestUUIDs: [String],
+        enqueuedLoopUUIDs: [String?] = [],
+        enqueuedIpVersions: [Int?] = []
+    ) {
         self.enqueuedTestUUIDs = enqueuedTestUUIDs
+        self.enqueuedLoopUUIDs = enqueuedLoopUUIDs
         self.enqueuedIpVersions = enqueuedIpVersions
     }
 
@@ -140,6 +186,7 @@ private final class ControlServerSpy: CoverageAPIService {
         capturedLoopUUIDs.append(loopUUID)
         let response = SignalRequestResponse()
         response.testUUID = enqueuedTestUUIDs.removeFirst()
+        response.loopUUID = enqueuedLoopUUIDs.isEmpty ? nil : enqueuedLoopUUIDs.removeFirst()
         response.pingHost = "host"
         response.pingPort = "444"
         response.pingToken = "Z7kKKZqSYU/j7nSGbjoRLw=="
@@ -148,18 +195,35 @@ private final class ControlServerSpy: CoverageAPIService {
     }
 }
 
-private final class OfflineThenOnlineControlServerSpy: CoverageAPIService {
-    let firstError: Error
-    private var didError = false
+private final class OfflineThenOnlineControlServerSpy: CoverageAPIService, @unchecked Sendable {
+    private let firstError: Error
+    private let lock = NSLock()
+    private var _didError = false
+    private var _callCount = 0
+    private var _capturedLoopUUIDs: [String?] = []
+
     init(firstError: Error) { self.firstError = firstError }
+
+    var callCount: Int { lock.withLock { _callCount } }
+    var capturedLoopUUIDs: [String?] { lock.withLock { _capturedLoopUUIDs } }
+
     func getCoverageRequest(_ request: CoverageRequestRequest, loopUUID: String?, success: @escaping (SignalRequestResponse) -> (), error failure: @escaping ErrorCallback) {
-        if !didError {
-            didError = true
+        let shouldFail: Bool = lock.withLock {
+            _callCount += 1
+            _capturedLoopUUIDs.append(loopUUID)
+            if !_didError {
+                _didError = true
+                return true
+            }
+            return false
+        }
+        if shouldFail {
             failure(firstError)
             return
         }
         let response = SignalRequestResponse()
         response.testUUID = "ONLINE-UUID"
+        response.loopUUID = "ONLINE-LOOP-UUID"
         response.pingHost = "host"
         response.pingPort = "444"
         response.pingToken = "Z7kKKZqSYU/j7nSGbjoRLw=="
@@ -167,8 +231,100 @@ private final class OfflineThenOnlineControlServerSpy: CoverageAPIService {
     }
 }
 
-private final class OnlineStatusServiceStub: OnlineStatusService {
-    private var continuation: AsyncStream<Bool>.Continuation!
-    func online() -> AsyncStream<Bool> { AsyncStream { c in self.continuation = c } }
-    func emit(_ value: Bool) { continuation?.yield(value) }
+/// Fails the first `failCount` calls, then succeeds with `finalTestUUID`.
+/// Exposes `waitForCallCount(_:)` so tests can synchronize on attempt boundaries
+/// instead of guessing with `Task.sleep`.
+private final class FlakyControlServerSpy: CoverageAPIService, @unchecked Sendable {
+    private let lock = NSLock()
+    private let failCount: Int
+    private let finalTestUUID: String
+    private var _callCount = 0
+    private var _waiters: [(target: Int, cont: CheckedContinuation<Void, Never>)] = []
+
+    init(failCount: Int, finalTestUUID: String) {
+        self.failCount = failCount
+        self.finalTestUUID = finalTestUUID
+    }
+
+    var callCount: Int { lock.withLock { _callCount } }
+
+    /// Suspends until `callCount >= target`. Resumes on the very call that pushes the
+    /// counter past the target, before the spy invokes its callback.
+    func waitForCallCount(_ target: Int) async {
+        await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+            lock.lock()
+            if _callCount >= target {
+                lock.unlock()
+                cont.resume()
+            } else {
+                _waiters.append((target, cont))
+                lock.unlock()
+            }
+        }
+    }
+
+    func getCoverageRequest(_ request: CoverageRequestRequest, loopUUID: String?, success: @escaping (SignalRequestResponse) -> (), error failure: @escaping ErrorCallback) {
+        let (shouldFail, toResume): (Bool, [CheckedContinuation<Void, Never>]) = lock.withLock {
+            _callCount += 1
+            let ready = _waiters.filter { $0.target <= _callCount }
+            _waiters.removeAll { $0.target <= _callCount }
+            return (_callCount <= failCount, ready.map(\.cont))
+        }
+        toResume.forEach { $0.resume() }
+        if shouldFail {
+            failure(NSError(domain: "test", code: -1009))
+            return
+        }
+        let response = SignalRequestResponse()
+        response.testUUID = finalTestUUID
+        response.pingHost = "host"
+        response.pingPort = "444"
+        response.pingToken = "Z7kKKZqSYU/j7nSGbjoRLw=="
+        success(response)
+    }
+}
+
+private final class OnlineStatusServiceStub: OnlineStatusService, @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: AsyncStream<Bool>.Continuation?
+    private var pendingEmissions: [Bool] = []
+    private var subscribedContinuations: [CheckedContinuation<Void, Never>] = []
+
+    func online() -> AsyncStream<Bool> {
+        AsyncStream { c in
+            self.lock.lock()
+            self.continuation = c
+            let buffered = self.pendingEmissions
+            self.pendingEmissions.removeAll()
+            let waiters = self.subscribedContinuations
+            self.subscribedContinuations.removeAll()
+            self.lock.unlock()
+            buffered.forEach { c.yield($0) }
+            waiters.forEach { $0.resume() }
+        }
+    }
+
+    func emit(_ value: Bool) {
+        lock.lock()
+        if let continuation {
+            lock.unlock()
+            continuation.yield(value)
+        } else {
+            pendingEmissions.append(value)
+            lock.unlock()
+        }
+    }
+
+    func waitUntilSubscribed() async {
+        await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+            lock.lock()
+            if continuation != nil {
+                lock.unlock()
+                cont.resume()
+            } else {
+                subscribedContinuations.append(cont)
+                lock.unlock()
+            }
+        }
+    }
 }

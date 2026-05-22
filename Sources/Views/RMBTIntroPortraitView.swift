@@ -82,6 +82,12 @@ class RMBTIntroPortraitView: UIView, XibLoadable {
         }
     }
 
+    var isCoverageEnabled: Bool = false {
+        didSet {
+            coverageImageView.isUserInteractionEnabled = isCoverageEnabled
+        }
+    }
+
     var networkMobileClassImage: UIImage? {
         didSet {
             networkMobileClassImageView.image = networkMobileClassImage
@@ -126,7 +132,6 @@ class RMBTIntroPortraitView: UIView, XibLoadable {
         self.ipV4ImageView.isUserInteractionEnabled = true
         self.ipV6ImageView.isUserInteractionEnabled = true
         self.locationImageView.isUserInteractionEnabled = true
-        self.coverageImageView.isUserInteractionEnabled = true
 
         self.ipV4ImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(ipv4TapHandler(_:))))
         self.ipV6ImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(ipv6TapHandler(_:))))
@@ -149,7 +154,7 @@ class RMBTIntroPortraitView: UIView, XibLoadable {
         self.coverageImageView.accessibilityTraits = .button
         self.coverageImageView.accessibilityLabel = .coverageImageViewA11Label
 
-        self.coverageTintColor = .ipAvailable
+        self.coverageTintColor = .coverageUnavailable
 
         // Hidden feature: Network Coverage entry point visibility
         updateCoverageUI()
@@ -187,18 +192,16 @@ class RMBTIntroPortraitView: UIView, XibLoadable {
     }
 
     func networkAvailable(_ networkType: RMBTNetworkType, networkName: String?, networkDescription: String?) {
-        var networkName = networkName
-        var networkDescription = networkDescription
-
-        if networkType == .cellular {
-            networkName = networkDescription
-            networkDescription = nil
-        }
+        let resolved = Self.resolveNetworkLabels(
+            networkType: networkType,
+            networkName: networkName,
+            networkDescription: networkDescription
+        )
 
         self.loopIconImageView.isHidden = !RMBTSettings.shared.loopMode
         self.startTestButton.isHidden = false
-        self.networkNameLabel.text = networkName
-        self.networkTypeLabel.text = networkDescription
+        self.networkNameLabel.text = resolved.networkName
+        self.networkTypeLabel.text = resolved.networkDescription
         self.networkWifiTypeImageView.image = .wifiAvailable
         if (networkType == .wifi) {
             self.networkWifiView.isHidden = false
@@ -221,6 +224,25 @@ class RMBTIntroPortraitView: UIView, XibLoadable {
             self.waveView.startAnimation()
             self.wave2View.startAnimation()
         }
+    }
+
+    static func resolveNetworkLabels(
+        networkType: RMBTNetworkType,
+        networkName: String?,
+        networkDescription: String?
+    ) -> (networkName: String?, networkDescription: String?) {
+        var networkName = networkName
+        var networkDescription = networkDescription
+
+        if networkType == .cellular {
+            networkName = networkDescription
+            networkDescription = nil
+        } else if networkType == .wifi, (networkName ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            networkName = networkDescription
+            networkDescription = nil
+        }
+
+        return (networkName: networkName, networkDescription: networkDescription)
     }
 
     func networkNotAvailable() {
@@ -298,4 +320,5 @@ private extension UIColor {
     static let ipNotAvailable = UIColor(red: 245.0 / 255.0, green: 0.0 / 255.0, blue: 28.0/255.0, alpha: 1.0)
     static let ipSemiAvailable = UIColor(red: 255.0 / 255.0, green: 6.0 / 255.0, blue: 0, alpha: 1.0)
     static let ipAvailable = UIColor(red: 89.0 / 255.0, green: 178.0 / 255.0, blue: 0, alpha: 1.0)
+    static let coverageUnavailable = UIColor.systemGray
 }

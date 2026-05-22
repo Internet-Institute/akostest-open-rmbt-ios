@@ -289,6 +289,8 @@
 "private_ip_address" = "Private address";
 
 "title_loop_mode" = "Loop mode";
+"title_coverage_series" = "Coverage series";
+"coverage_label" = "Coverage";
 
 /* Location Dialog */
 "location_dialog_label_title" = "Location";
@@ -407,6 +409,8 @@
 "preferences_about" = "About";
 "preferences_developed_by" = "Developed by";
 "preferences_source_code" = "Source code";
+"preferences_export_logs" = "Export logs";
+"preferences_export_logs_error" = "Couldn't prepare today's log file.";
 
 "preferences_debug_options" = "Debug Options";
 "preferences_ipv6_only" = "IPv6 Only";

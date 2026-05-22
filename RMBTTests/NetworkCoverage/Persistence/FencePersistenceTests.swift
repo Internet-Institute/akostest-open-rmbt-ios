@@ -20,8 +20,8 @@ struct FencePersistenceTests {
             let (sut, persistence, _) = makeSUT(testUUID: "dummy")
 
             try await inSession(sessionID: sessionID, with: sut) {
-                try await sut.persist(fence: makeFence(lat: 1, lon: 2, date: Date(timeIntervalSinceReferenceDate: 1), technology: "LTE"))
-                try await sut.persist(fence: makeFence(lat: 3, lon: 4, date: Date(timeIntervalSinceReferenceDate: 2), technology: "3G"))
+                try await sut.persist(fence: makeFence(lat: 1, lon: 2, dateEntered: Date(timeIntervalSinceReferenceDate: 1), technology: "LTE"))
+                try await sut.persist(fence: makeFence(lat: 3, lon: 4, dateEntered: Date(timeIntervalSinceReferenceDate: 2), technology: "3G"))
             }
 
             let persistedFences = try persistence.allPersistedFences()
@@ -46,8 +46,8 @@ struct FencePersistenceTests {
             let sessionID = "session-1"
             let (sut, persistence, sendService) = makeSUT(testUUID: sessionID, sendResults: [.success(())])
             let fences = [
-                makeFence(lat: 1, lon: 2, technology: "LTE"),
-                makeFence(lat: 3, lon: 4, technology: "3G")
+                makeFence(lat: 1, lon: 2, technology: "LTE", sessionUUID: sessionID),
+                makeFence(lat: 3, lon: 4, technology: "3G", sessionUUID: sessionID)
             ]
 
             try await sut.persistAndSend(fences: fences, sessionID: sessionID)
@@ -61,8 +61,8 @@ struct FencePersistenceTests {
             let sessionID = "session-1"
             let (sut, persistence, sendService) = makeSUT(testUUID: sessionID, sendResults: [.failure(TestError.sendFailed)])
             let fences = [
-                makeFence(lat: 1, lon: 2, date: Date(timeIntervalSinceReferenceDate: 1), technology: "LTE"),
-                makeFence(lat: 3, lon: 4, date: Date(timeIntervalSinceReferenceDate: 2), technology: "3G")
+                makeFence(lat: 1, lon: 2, dateEntered: Date(timeIntervalSinceReferenceDate: 1), technology: "LTE", sessionUUID: sessionID),
+                makeFence(lat: 3, lon: 4, dateEntered: Date(timeIntervalSinceReferenceDate: 2), technology: "3G", sessionUUID: sessionID)
             ]
 
             await #expect(throws: TestError.sendFailed) {
@@ -93,7 +93,7 @@ struct FencePersistenceTests {
                 sendResults: [.success(()), .success(())],
                 previouslyPersistedSessions: [(prevSession, prevPersistedFences)]
             )
-            let newFences = [makeFence(), makeFence(), makeFence()]
+            let newFences = [makeFence(sessionUUID: testUUID), makeFence(sessionUUID: testUUID), makeFence(sessionUUID: testUUID)]
 
             try await sut.persistAndSend(fences: newFences, sessionID: testUUID)
 
@@ -130,7 +130,7 @@ struct FencePersistenceTests {
                 sendResults: [.success(()), .failure(TestError.sendFailed), .success(())],
                 previouslyPersistedSessions: [(prevSession, prevPersistedFences), (prevPrevSession, prevPrevPersistedFences)]
             )
-            let newFences = [makeFence(), makeFence(), makeFence()]
+            let newFences = [makeFence(sessionUUID: testUUID), makeFence(sessionUUID: testUUID), makeFence(sessionUUID: testUUID)]
 
             try await sut.persistAndSend(fences: newFences, sessionID: testUUID)
 
@@ -172,7 +172,7 @@ struct FencePersistenceTests {
                 previouslyPersistedSessions: [(persistentSession, [persistentFence])]
             )
 
-            try await sut.persistAndSend(fences: [makeFence()], sessionID: newTestUUID)
+            try await sut.persistAndSend(fences: [makeFence(sessionUUID: newTestUUID)], sessionID: newTestUUID)
 
             let mappedFence = try #require(sendService.capturedSendCalls.last?.fences.first)
 
@@ -214,7 +214,7 @@ struct FencePersistenceTests {
                 maxResendAge: maxAgeSeconds
             )
 
-            try await sut.persistAndSend(fences: [makeFence()], sessionID: testUUID)
+            try await sut.persistAndSend(fences: [makeFence(sessionUUID: testUUID)], sessionID: testUUID)
 
             #expect(try persistence.allPersistedFences().count == 0)
             #expect(try persistence.allPersistedSessions().count == 0)
@@ -244,7 +244,7 @@ struct FencePersistenceTests {
                 maxResendAge: maxAgeSeconds
             )
 
-            try await sut.persistAndSend(fences: [makeFence()], sessionID: testUUID)
+            try await sut.persistAndSend(fences: [makeFence(sessionUUID: testUUID)], sessionID: testUUID)
 
             #expect(try persistence.allPersistedFences().count == 0) // All should be sent and removed
             #expect(try persistence.allPersistedSessions().count == 0) // All should be sent and removed
@@ -278,7 +278,7 @@ struct FencePersistenceTests {
                 maxResendAge: maxAgeSeconds
             )
 
-            try await sut.persistAndSend(fences: [makeFence()], sessionID: testUUID)
+            try await sut.persistAndSend(fences: [makeFence(sessionUUID: testUUID)], sessionID: testUUID)
 
             let remainingFences = try persistence.allPersistedFences()
             let remainingSessions = try persistence.allPersistedSessions()
@@ -296,20 +296,21 @@ struct FencePersistenceTests {
 
     @Suite("Session-Based Persistence")
     struct SessionBasedPersistence {
-        @Test func whenDeletingNilUUIDSession_thenOrphanedFencesAreDeleted() async throws {
+        @Test func whenDeletingNilUUIDSessionWithFences_thenSessionPreservedForLateAnchor() async throws {
             let baseTime = makeBaseTime()
             let (sut, persistence, _) = makeSUT(testUUID: nil)
 
             try await sut.beginSession(startedAt: baseTime)
-            try await sut.persist(fence: makeFence(date: baseTime))
+            try await sut.persist(fence: makeFence(dateEntered: baseTime))
             try await sut.finalizeCurrentSession(at: baseTime.addingTimeInterval(1))
             try await sut.deleteFinalizedNilUUIDSessions()
 
             let sessions = try persistence.allPersistedSessions()
-            #expect(sessions.isEmpty)
+            #expect(sessions.count == 1)
+            #expect(sessions.first?.testUUID == nil)
 
             let fences = try persistence.allPersistedFences()
-            #expect(fences.isEmpty)
+            #expect(fences.count == 1)
         }
 
         @Test func whenStoppedWithoutUUID_thenSessionDeleted() async throws {
@@ -467,11 +468,11 @@ struct FencePersistenceTests {
 
             // Add fences to first session
             let fencesInFirstSession = [
-                makeFence(lat: 1.0, lon: 1.0, date: baseTime.addingTimeInterval(1)),
-                makeFence(lat: 2.0, lon: 2.0, date: baseTime.addingTimeInterval(2)),
-                makeFence(lat: 3.0, lon: 3.0, date: baseTime.addingTimeInterval(3)),
-                makeFence(lat: 4.0, lon: 4.0, date: baseTime.addingTimeInterval(4)),
-                makeFence(lat: 5.0, lon: 5.0, date: baseTime.addingTimeInterval(5))
+                makeFence(lat: 1.0, lon: 1.0, dateEntered: baseTime.addingTimeInterval(1)),
+                makeFence(lat: 2.0, lon: 2.0, dateEntered: baseTime.addingTimeInterval(2)),
+                makeFence(lat: 3.0, lon: 3.0, dateEntered: baseTime.addingTimeInterval(3)),
+                makeFence(lat: 4.0, lon: 4.0, dateEntered: baseTime.addingTimeInterval(4)),
+                makeFence(lat: 5.0, lon: 5.0, dateEntered: baseTime.addingTimeInterval(5))
             ]
             try await sut.persist(fences: fencesInFirstSession)
 
@@ -512,7 +513,7 @@ struct FencePersistenceTests {
 
             // Add fences during hour 1
             let fencesHour1 = (0..<222).map { i in
-                makeFence(lat: Double(i), lon: Double(i), date: baseTime.addingTimeInterval(Double(i)))
+                makeFence(lat: Double(i), lon: Double(i), dateEntered: baseTime.addingTimeInterval(Double(i)))
             }
             try await sut.persist(fences: fencesHour1)
 
@@ -522,7 +523,7 @@ struct FencePersistenceTests {
 
             // Add fences during hour 2
             let fencesHour2 = (0..<7).map { i in
-                makeFence(lat: 50.0 + Double(i), lon: 50.0 + Double(i), date: hour2Time.addingTimeInterval(Double(i)))
+                makeFence(lat: 50.0 + Double(i), lon: 50.0 + Double(i), dateEntered: hour2Time.addingTimeInterval(Double(i)))
             }
             try await sut.persist(fences: fencesHour2)
 
@@ -553,6 +554,73 @@ struct FencePersistenceTests {
             #expect(session1?.fences.count == 222, "Session 1 should have 222 fences, got \(session1?.fences.count ?? 0)")
             #expect(session2?.fences.count == 7, "Session 2 should have 7 fences, got \(session2?.fences.count ?? 0)")
             #expect(session3?.fences.count == 0, "Session 3 should have 0 fences, got \(session3?.fences.count ?? 0)")
+        }
+    }
+
+    @Suite("Fence Persistence Behavior")
+    struct FencePersistenceBehavior {
+        @Test func whenFenceSaved_thenAlwaysSavedToLatestUnfinishedSession() async throws {
+            let session1UUID = "session-1"
+            let session2UUID = "session-2"
+            let (sut, persistence, _) = makeSUT(testUUID: "dummy")
+
+            // Create session 1
+            try await sut.beginSession(startedAt: Date(timeIntervalSinceReferenceDate: 1))
+            try await sut.assignTestUUIDAndAnchor(session1UUID, anchorNow: Date(timeIntervalSinceReferenceDate: 1))
+
+            // Create session 2 (finalizes session 1)
+            try await sut.assignTestUUIDAndAnchor(session2UUID, anchorNow: Date(timeIntervalSinceReferenceDate: 5))
+
+            // Save fence - should go to session 2 (latest unfinished) regardless of sessionUUID
+            var fence = makeFence(lat: 3.0, lon: 4.0, dateEntered: Date(timeIntervalSinceReferenceDate: 6))
+            fence.sessionUUID = session1UUID  // Even though fence has session1UUID...
+            try await sut.persist(fence: fence)
+
+            // Verify fence was saved to session 2 (latest unfinished), not session 1
+            let session1Fences = try persistence.persistedFences(forSessionID: session1UUID)
+            let session2Fences = try persistence.persistedFences(forSessionID: session2UUID)
+
+            #expect(session1Fences.count == 0, "Fence should NOT be in finalized session 1")
+            #expect(session2Fences.count == 1, "Fence should be in latest unfinished session 2")
+            #expect(session2Fences.first?.latitude == 3.0)
+            #expect(session2Fences.first?.longitude == 4.0)
+        }
+
+        @Test func whenMultipleFencesSaved_thenAllGoToLatestUnfinishedSession() async throws {
+            let session1UUID = "session-1"
+            let session2UUID = "session-2"
+            let (sut, persistence, _) = makeSUT(testUUID: "dummy")
+
+            // Create session 1
+            try await sut.beginSession(startedAt: Date(timeIntervalSinceReferenceDate: 1))
+            try await sut.assignTestUUIDAndAnchor(session1UUID, anchorNow: Date(timeIntervalSinceReferenceDate: 1))
+
+            // Create session 2 (finalizes session 1)
+            try await sut.assignTestUUIDAndAnchor(session2UUID, anchorNow: Date(timeIntervalSinceReferenceDate: 5))
+
+            // Save multiple fences with different sessionUUIDs - all should go to session 2
+            var fence1 = makeFence(lat: 1.0, lon: 1.0)
+            fence1.sessionUUID = session1UUID
+
+            var fence2 = makeFence(lat: 2.0, lon: 2.0)
+            fence2.sessionUUID = session1UUID
+
+            var fence3 = makeFence(lat: 3.0, lon: 3.0)
+            fence3.sessionUUID = session2UUID
+
+            try await sut.persist(fence: fence1)
+            try await sut.persist(fence: fence2)
+            try await sut.persist(fence: fence3)
+
+            // Verify all fences saved to session 2 (latest unfinished)
+            let session1Fences = try persistence.persistedFences(forSessionID: session1UUID)
+            let session2Fences = try persistence.persistedFences(forSessionID: session2UUID)
+
+            #expect(session1Fences.count == 0, "Session 1 should have 0 fences (finalized)")
+            #expect(session2Fences.count == 3, "Session 2 should have all 3 fences (latest unfinished)")
+
+            let session2Lats = session2Fences.map(\.latitude).sorted()
+            #expect(session2Lats == [1.0, 2.0, 3.0])
         }
     }
 }
@@ -704,26 +772,6 @@ private final class PersistenceLayerSpy {
     }
 }
 
-private func makeFence(
-    lat: CLLocationDegrees = Double.random(in: -90...90),
-    lon: CLLocationDegrees = Double.random(in: -180...180),
-    date: Date = Date(timeIntervalSinceReferenceDate: TimeInterval.random(in: 0...10000)),
-    technology: String? = ["3G", "4G", "5G", "LTE"].randomElement(),
-    averagePing: Int? = nil
-) -> Fence {
-    var fence = Fence(
-        startingLocation: CLLocation(latitude: lat, longitude: lon),
-        dateEntered: date,
-        technology: technology,
-        radiusMeters: Double.random(in: 1...100)
-    )
-
-    if let ping = averagePing {
-        fence.append(ping: PingResult(result: .interval(.milliseconds(ping)), timestamp: date))
-    }
-
-    return fence
-}
 
 func makePersistentFence(testUUID: String = "TODO: Delete", timestamp: UInt64) -> PersistentFence {
     .init(

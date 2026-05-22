@@ -47,9 +47,12 @@ public class SendCoverageResultRequest: BasicRequest {
         private(set) var avgPingMilliseconds: Int?
         private(set) var offsetMiliseconds: Int
         private(set) var durationMiliseconds: Int?
+        static let noNetworkTechnology = "NONE"
+        static let noNetworkTechnologyID = 1000
+
         private(set) var technology: String?
         private(set) var technology_id: Int?
-        private(set) var radius_m: Int
+        private(set) var radius: Int
 
         init(fence: Fence, coverageStartDate: Date) {
             timestamp = UInt64(fence.dateEntered.timeIntervalSince1970 * 1_000_000) // microseconds
@@ -75,9 +78,14 @@ public class SendCoverageResultRequest: BasicRequest {
                 durationMiliseconds = nil
             }
 
-            technology = fence.technologies.last?.radioTechnologyCode
-            technology_id = fence.technologies.last?.radioTechnologyTypeID
-            radius_m = Int(fence.radiusMeters)
+            if let lastTechnology = fence.technologies.last {
+                technology = lastTechnology.radioTechnologyCode
+                technology_id = lastTechnology.radioTechnologyTypeID
+            } else {
+                technology = Self.noNetworkTechnology
+                technology_id = Self.noNetworkTechnologyID
+            }
+            radius = Int(fence.radiusMeters)
         }
 
         required init?(map: Map) {
@@ -92,7 +100,7 @@ public class SendCoverageResultRequest: BasicRequest {
             durationMiliseconds <- map["duration_ms"]
             technology          <- map["technology"]
             technology_id       <- map["technology_id"]
-            radius_m            <- map["radius_m"]
+            radius            <- map["radius"]
         }
     }
 

@@ -27,14 +27,14 @@ This document reflects the current behavior verified by unit tests in `RMBTTests
 - Scope: SwiftUI UI, MVVM logic, UDP ping measurement, Core Location, persistence via SwiftData, and server sync using the existing control server API.
 - Key features:
   - Continuous ping measurement on a fixed cadence (default 100 ms).
-  - Fence grouping by proximity (default radius 20 m).
+  - Fence grouping by proximity using a dynamic per-location fence radius with a 15 m minimum fallback.
   - Location-accuracy awareness with warning and auto‑stop behavior.
   - Wi‑Fi connection awareness (blocks measurement on Wi‑Fi).
   - Reliable result submission with local persistence and resend.
 
 Defaults (from factory):
-- Fence radius: 20 m.
-- Minimum acceptable location accuracy: production 5 m; read‑only/preview 10 m.
+- Minimum fence radius fallback: 15 m.
+- Minimum acceptable location accuracy: production 15 m; read‑only/preview 10 m.
 - Location inaccuracy warning initial delay: 3 s.
 - Auto‑stop if no accurate location ever appears within: 30 minutes.
 - Ping frequency: 100 ms.
@@ -85,7 +85,9 @@ SendCoverageResultRequest (API payload):
   - `avg_ping_ms?`, `offset_ms`, `duration_ms?`, `technology?`, `technology_id?`, `radius_m`.
 
 Notes:
-- `offset_ms` is relative to coverage session start (`CoverageMeasurementSessionInitializer.lastTestStartDate`).
+- `offset_ms` is relative to the session anchor used for submission.
+- For the live in-memory session, that anchor is the control-server session initialization time.
+- For persisted resend, that anchor is the stored `PersistentCoverageSession.anchorAt`.
 - `duration_ms` present only if fence has an exit time.
 - `technology/technology_id` derived from the fence’s last technology code.
 
@@ -95,6 +97,7 @@ Notes:
 
 1) Start
 - Start background activity; reset state; clear previous fences.
+- Reset `currentTestUUID` to `nil` and create a new unfinished persisted session immediately.
 - Schedule: location inaccuracy warning gate (3 s) and auto‑stop due to prolonged inaccuracy (30 min).
 - Start iteration over merged streams: pings, locations, network type updates.
 
@@ -118,7 +121,16 @@ Ping timestamps and cadence
 High‑level flow
 - `PingMeasurementService.pings2` drives periodic ticks (default 100 ms) using a `Clock`.
 - Each tick either initiates a UDP ping session (if needed) or sends a ping within the current session.
-- Errors yield `.error` pings except when the error requires reinitialization, in which case nothing is emitted on that tick and a reinit is scheduled.
+- Ping send/receive errors yield `.error` pings.
+- Reinitialization errors coming from the UDP protocol (`RE01`) reset the ping state and the next cadence tick re-initiates the session.
+- Session-init failures from `/coverageRequest` yield an `.error` ping on the failing tick. In production the factory injects `NetworkReachabilityOnlineStatusService`, so the next `/coverageRequest` retry is suspended inside the initializer until reachability reports the device is online again — the cadence then proceeds without a busy retry loop.
+
+UDP transport
+- The UDP transport is abstracted behind the `UDPConnectable` protocol (`send(data:)` is enqueue‑only / synchronous; `receive()` is async).
+- Two concrete implementations exist:
+  - `AsyncSocketUDPConnection` (default): unconnected `GCDAsyncUdpSocket` that binds to an ephemeral local port and sends each datagram with an explicit destination host/port. This accepts replies from any server source address, which is required on IPv6 where the server may respond from a different address than the one the client targeted.
+  - `NWUDPConnection`: connected `NWConnection`‑based transport retained for comparison and debugging. Not used by default because a connected UDP endpoint drops replies arriving from a different IPv6 source address.
+- Response validity is determined by protocol fields and sequence/token semantics, not by source endpoint identity.
 
 UDP session and protocol
 - `UDPPingSession` (actor) encapsulates the RTR UDP ping protocol.
@@ -127,6 +139,7 @@ UDP session and protocol
   - `RR01` with matching sequence → ping succeeds.
   - `RE01` with matching sequence → fail with `needsReinitialization`.
   - `RE01` with unmatched sequence (incl. seq 0x0) while any ping is pending → treat as global reinit signal; all pending pings fail with `needsReinitialization`.
+- Pending request registration happens before the send so that a fast reply cannot arrive before the continuation is stored.
 - Timeouts: pending pings exceeding `timeoutIntervalMs` (default 1000 ms) are completed with `timedOut`.
 - UDP connection start parameters come from the coverage request (host/port/ip version). `ipVersion` may be nil.
 
@@ -136,7 +149,7 @@ Session reinitialization triggers
 - On each reinit, `PingMeasurementService` marks the session as needing initiation; the next cadence tick performs `/coverageRequest` and continues.
 
 Chaining sessions (`loop_uuid`)
-- `CoverageMeasurementSessionInitializer` passes the previous `test_uuid` as the next request’s `loop_uuid` when reinitializing.
+- `CoverageMeasurementSessionInitializer` passes the previous response `loop_uuid` as the next request’s `loop_uuid` when reinitializing.
 - The initializer also exposes server‑provided limits:
   - `maxCoverageSessionDuration` (stop everything when reached).
   - `maxCoverageMeasurementDuration` (reinitialize ping session when reached).
@@ -146,7 +159,7 @@ Chaining sessions (`loop_uuid`)
 ## Location Accuracy Handling
 
 Accuracy threshold and windows
-- A location is “precise enough” when `horizontalAccuracy ≤ minimumLocationAccuracy` (prod 5 m).
+- A location is “precise enough” when `horizontalAccuracy ≤ minimumLocationAccuracy` (prod 15 m).
 - While accuracy is insufficient, the view model opens an “inaccurate location window”; any ping whose timestamp falls within any open window is ignored (not assigned to fences).
 - When accuracy improves, the last open window is closed; subsequent pings are processed normally.
 
@@ -171,13 +184,16 @@ Warning popup and auto‑stop
 
 Creation and updates
 - On a precise location update:
-  - If there is no current fence → open a new fence at this location.
-  - Else if `distance(from: startingLocation) ≥ fenceRadius` (default 20 m) → close the current fence at the update timestamp, persist it, and start a new fence at the new location.
+  - Compute the candidate fence radius as `max(15 m, 10 m + 2 × horizontalAccuracy, speed_m_s × 1 s)`.
+  - If there is no current fence → open a new fence at this location using that computed radius.
+  - Else if `distance(from: startingLocation) ≥ currentFence.radiusMeters` → close the current fence at the update timestamp, persist it, and start a new fence at the new location using the newly computed radius.
   - Else → append location to the current fence and, if available, append the current technology code.
+- Once a fence is opened, its `radiusMeters` stays frozen for the lifetime of that fence; later location updates do not resize an already-open fence.
 
 Ping assignment to fences
 - For each successful ping, find the fence active at `ping.timestamp` (entered < t < exited; the last fence is open‑ended) and append the ping there.
 - Pings occurring inside an “inaccurate location window” are ignored.
+- When a session UUID is assigned or changed, fences that were still `nil`-tagged are retro-tagged with the new UUID, and the active in-memory fence is reassigned to the new UUID without being force-closed.
 
 Average ping and technology
 - `averagePing` is the mean over successful pings within the fence.
@@ -188,7 +204,9 @@ Average ping and technology
 ## Persistence & Result Submission
 
 Persistence
+- `sessionStarted(at:)` creates an unfinished `PersistentCoverageSession` even before `test_uuid` is known.
 - Completed fences are persisted to SwiftData immediately when a new fence is opened; the last fence is closed and persisted on stop.
+- `assignTestUUIDAndAnchor(_:anchorNow:)` attaches the server `test_uuid` and anchor timestamp to the unfinished persisted session. If a different UUID arrives mid-measurement, the current persisted session is finalized and a new persisted session is opened from the new anchor.
 - Persisted fields include `exitTimestamp` (if closed) and `radiusMeters`.
 
 Resend on startup / session init
@@ -202,13 +220,17 @@ Submission
 - Uses `ControlServerCoverageResultsService` → `RMBTControlServer.submitCoverageResult`.
 - Acceptable status codes: 200..<300.
 - Payload includes `radius_m`, location extras (accuracy/altitude/heading/speed when available), `offset_ms`, and optional `duration_ms`.
+- `PersistenceManagingCoverageResultsService` submits only fences whose `sessionUUID` matches the current `test_uuid`.
+- If the current session has no matching fences, the send path falls back to resend-only behavior for previously finalized persisted sessions.
+- If the current measurement never obtained a `test_uuid`, send fails with `missingTestUUID`; the view model finalizes the local persisted session and **keeps it on disk** (issue #60). The resender will anchor it on the next online opportunity via `SessionAnchoringService`.
 
 ---
 
 ## UI Behavior
 
-- Map overlay shows fence centers (radius 20 m by default) with technology color coding:
+- Map overlay shows fence centers using each fence's stored radius with technology color coding:
   - 2G: #fca636, 3G: #e16462, 4G: #b12a90, 5G NSA: #6a00a8, 5G SA: #0d0887, unknown: #d9d9d9.
+- The live settings panel no longer exposes a production fence-radius slider; instead it shows the frozen current-fence radius and the latest computed dynamic radius as diagnostics.
 - Selection updates a detail panel with date, technology label, and average ping (e.g., “60 ms”).
 - Map rendering strategy is tunable through `FencesRenderingConfiguration` (defaults: `maxCircleCountBeforePolyline = 60`, `minimumSpanForPolylineMode = 0.03`, `visibleRegionPaddingFactor = 1.2`, `cullsToVisibleRegion = true`). The view model maintains derived state (`visibleFenceItems`, `fencePolylineSegments`, `mapRenderMode`) and only recomputes it when fences or the visible map region change, keeping SwiftUI diffs minimal.
 - When `mapRenderMode == .circles`, the map shows per-fence annotations and circles; when line count and zoom span exceed the configured thresholds, it switches to `mapRenderMode == .polylines`, grouping contiguous fences with the same technology into colored polylines while clearing any stale selection.
@@ -227,11 +249,12 @@ Submission
 
 UDP pings reinitialization (docs/NetworkCoverage/user-stories/udp-pings-behavior.md)
 - Session init uses `ping_host`, `ping_port`, `ping_token`; remembers `test_uuid` for the current session.
-- Reinit chains sessions by passing the previous `test_uuid` as `loop_uuid`.
+- Reinit chains sessions by passing the previous response `loop_uuid` as `loop_uuid`.
 - Timed reinit: when `max_coverage_measurement_seconds` elapses, reinit the UDP session seamlessly (no UI interruption).
 - Stop on `max_coverage_session_seconds` elapse.
 - Protocol mapping: `RP01` request; `RR01` (match) → success; `RE01` (match) → needs reinit; `RE01` (unmatched/0x0) → global reinit of all pending pings.
 - Persist/submit: fences collected under a given `test_uuid` are sent with that `test_uuid`; older persisted sessions are resent, newest groups first.
+- Offline-start: persisted sessions support negative `offset_ms` and the production composition wires `NetworkReachabilityOnlineStatusService` for mid-measurement recovery (scenario B). For fully-offline runs (scenario A), the resender invokes `/coverageRequest` per stranded session via `SessionAnchoringService`, late-writes `test_uuid` + `anchor_at` onto the persisted session, and submits with all-negative offsets. Sessions that never reach connectivity within `persistenceMaxAgeInterval` (7 days) are dropped by the age-based cleanup.
 
 Location accuracy warning (docs/NetworkCoverage/user-stories/location-accuracy-warning.md)
 - Hidden before start; initial delay of 3 s after start.

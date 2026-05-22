@@ -7,27 +7,32 @@
 
 import Foundation
 import AsyncAlgorithms
+import CoreLocation
 
 struct NetworkCoverageFactory {
     // MARK: - Constants
-    // FIXME: Temporary workaround - server returns 406 even on successful submissions
     static let acceptableSubmitResultsRequestStatusCodes = 200..<300
     static let persistenceMaxAgeInterval: TimeInterval = 7 * 24 * 60 * 60
     static let locationInaccuracyWarningInitialDelay: TimeInterval = 3
     static let insufficientAccuracyAutoStopInterval: TimeInterval = 30 * 60
+    static let minimumFenceRadius: CLLocationDistance = 15
+    static let minimumLocationAccuracy: CLLocationAccuracy = 15
 
     private let database: UserDatabase
     private let maxResendAge: TimeInterval
     private let dateNow: () -> Date
+    private let coverageAPIService: any CoverageAPIService
 
     init(
         database: UserDatabase = .shared,
         maxResendAge: TimeInterval = Self.persistenceMaxAgeInterval,
-        dateNow: @escaping () -> Date = Date.init
+        dateNow: @escaping () -> Date = Date.init,
+        coverageAPIService: some CoverageAPIService = RMBTControlServer.shared
     ) {
         self.database = database
         self.maxResendAge = maxResendAge
         self.dateNow = dateNow
+        self.coverageAPIService = coverageAPIService
     }
 
     var persistedFencesSender: PersistedFencesResender {
@@ -38,7 +43,8 @@ struct NetworkCoverageFactory {
                 self.makeSendResultsService(testUUID: testUUID, startDate: startDate)
             },
             maxResendAge: maxResendAge,
-            dateNow: dateNow
+            dateNow: dateNow,
+            sessionAnchoring: makeSessionAnchoring()
         )
     }
 
@@ -50,7 +56,15 @@ struct NetworkCoverageFactory {
             persistence: persistence,
             sendResultsService: { uuid, start in sendResultsServiceMaker(uuid, start) },
             maxResendAge: maxResendAge,
-            dateNow: dateNow
+            dateNow: dateNow,
+            sessionAnchoring: makeSessionAnchoring()
+        )
+    }
+
+    private func makeSessionAnchoring() -> some SessionAnchoringService {
+        CoverageRequestSessionAnchoring(
+            coverageAPIService: coverageAPIService,
+            now: dateNow
         )
     }
 
@@ -92,29 +106,37 @@ struct NetworkCoverageFactory {
             persistenceService: MockFencePersistenceService(),
             locale: .current,
             clock: ContinuousClock(),
-            maxTestDuration: { 1 }
+            maxTestDuration: { 1 },
+            fenceRadiusCalculator: .init(minimumRadius: Self.minimumFenceRadius)
         )
     }
 
-    func makeSessionInitializer(onlineStatusService: OnlineStatusService? = nil) -> OnlineAwareSessionInitializer {
+    func makeSessionInitializer(
+        onlineStatusService: OnlineStatusService? = nil,
+        retryDelay: Duration = .seconds(1)
+    ) -> OnlineAwareSessionInitializer {
         let core = CoreSessionInitializer(
             now: dateNow,
-            coverageAPIService: RMBTControlServer.shared
+            coverageAPIService: coverageAPIService
         )
+        let resender = persistedFencesSender
         let withPersistence = PersistenceAwareSessionInitializer(
             wrapped: core,
-            database: database
+            resendBeforeNewSession: { try await resender.resendPersistentAreas(isLaunched: false) }
         )
         let withOnline = OnlineAwareSessionInitializer(
             wrapped: withPersistence,
             onlineStatusService: onlineStatusService,
-            now: dateNow
+            now: dateNow,
+            retryDelay: retryDelay
         )
         return withOnline
     }
 
     @MainActor func makeCoverageViewModel(fences: [Fence] = []) -> NetworkCoverageViewModel {
-        let sessionInitializer = makeSessionInitializer()
+        let sessionInitializer = makeSessionInitializer(
+            onlineStatusService: NetworkReachabilityOnlineStatusService()
+        )
         let (persistenceService, resultSender) = services(
             testUUID: sessionInitializer.lastTestUUID,
             startDate: sessionInitializer.lastTestStartDate,
@@ -129,16 +151,18 @@ struct NetworkCoverageFactory {
         let networkConnectionUpdatesService = SimulatorNetworkConnectionTypeUpdatesService(now: dateNow)
         // Simulator: inject the mocked radio technology to complement simulated connection types.
         let radioTechnologyService = SimulatorRadioTechnologyService()
+        let networkTypeProvider: (any CurrentNetworkTypeProvider)? = nil
 #else
-        let networkConnectionUpdatesService = ReachabilityNetworkConnectionTypeUpdatesService(now: dateNow)
+        let networkConnectionUpdatesService = NWPathMonitorNetworkConnectionTypeUpdatesService(now: dateNow)
         let radioTechnologyService = CTTelephonyRadioTechnologyService()
+        let networkTypeProvider: (any CurrentNetworkTypeProvider)? = NWPathMonitorCurrentNetworkTypeProvider()
 #endif
 
         let pingSeq = { PingMeasurementService.pings2(
             clock: clock,
             pingSender: UDPPingSession(
                 sessionInitiator: sessionInitializer,
-                udpConnection: UDPConnection(),
+                udpConnection: AsyncSocketUDPConnection(),
                 timeoutIntervalMs: 1000,
                 now: RMBTHelpers.RMBTCurrentNanos
             ),
@@ -153,7 +177,7 @@ struct NetworkCoverageFactory {
         return NetworkCoverageViewModel(
             fences: fences,
             refreshInterval: 1,
-            minimumLocationAccuracy: 5,
+            minimumLocationAccuracy: Self.minimumLocationAccuracy,
             locationInaccuracyWarningInitialDelay: Self.locationInaccuracyWarningInitialDelay,
             insufficientAccuracyAutoStopInterval: Self.insufficientAccuracyAutoStopInterval,
             updates: {
@@ -181,20 +205,17 @@ struct NetworkCoverageFactory {
             clock: clock,
             maxTestDuration: { sessionInitializer.maxCoverageSessionDuration ?? 4*60*60 /* 4 hours */ },
             ipVersionProvider: { sessionInitializer.lastIPVersion },
-            connectionsCountProvider: { max(1, sessionInitializer.udpPingSessionCount) }
+            connectionsCountProvider: { max(1, sessionInitializer.udpPingSessionCount) },
+            networkTypeProvider: networkTypeProvider,
+            fenceRadiusCalculator: .init(minimumRadius: Self.minimumFenceRadius)
         )
     }
 
     private func makeSendResultsService(testUUID: String, startDate: Date?) -> some SendCoverageResultsService {
-        let baseService = ControlServerCoverageResultsService(
+        ControlServerCoverageResultsService(
             controlServer: RMBTControlServer.shared,
             testUUID: testUUID,
             startDate: startDate
-        )
-        // FIXME: temporarily accept 406 failure as success
-        return AcceptableStatusCodeSendCoverageResultsService(
-            base: baseService,
-            acceptableStatusCodes: Self.acceptableSubmitResultsRequestStatusCodes + [406]
         )
     }
 }
@@ -209,9 +230,7 @@ private actor MockFencePersistenceService: FencePersistenceService {
     func save(_ fence: Fence) throws {}
     func sessionStarted(at date: Date) throws {}
     func sessionFinalized(at date: Date) throws {}
-    func beginSession(startedAt: Date, loopUUID: String?) throws {}
     func assignTestUUIDAndAnchor(_ uuid: String, anchorNow: Date) throws {}
-    func finalizeCurrentSession(at date: Date) throws {}
     func deleteFinalizedNilUUIDSessions() throws {}
 }
 
