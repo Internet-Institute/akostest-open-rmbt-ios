@@ -41,7 +41,7 @@ public class RMBTConfig {
 
     var RMBT_URL_HOST: String { return "https://akostest.net" }
     // Control server base URL used when user has enabled the "IPv4-Only" setting
-    var RMBT_IPV4_URL_HOST: String { return "v4.akostest.net" }
+    var RMBT_IPV4_URL_HOST: String { return "akostest.net" }
     // Ditto for the (debug) "IPv6-Only" setting
     var RMBT_IPV6_URL_HOST: String { return "v6.akostest.net" }
     // Test
@@ -50,9 +50,9 @@ public class RMBTConfig {
     // Control server base URL used per default
     var RMBT_URL_HOST: String { return "https://akostest.net" }
     // Control server base URL used when user has enabled the "IPv4-Only" setting
-    var RMBT_IPV4_URL_HOST: String { return "https://akostest.net" }
+    var RMBT_IPV4_URL_HOST: String { return "akostest.net" }
     // Ditto for the (debug) "IPv6-Only" setting
-    var RMBT_IPV6_URL_HOST: String { return "https://v6.akostest.net" }
+    var RMBT_IPV6_URL_HOST: String { return "v6.akostest.net" }
     #endif
     var RMBT_CONTROL_SERVER_PATH: String { return "/RMBTControlServer" }
     var RMBT_MAP_SERVER_PATH: String { return "/RMBTMapServer" }

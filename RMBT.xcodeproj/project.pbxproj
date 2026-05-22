@@ -3,11 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 71;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2E236185D01B43110800430E /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		2E236185D01B43110800430E /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		361443482732793E00D0FC26 /* RMBTHistorySyncModalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361443472732793D00D0FC26 /* RMBTHistorySyncModalViewController.swift */; };
 		3628C539275639E40001E885 /* RMBTHistoryQoSTitledResultCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3628C538275639E40001E885 /* RMBTHistoryQoSTitledResultCell.xib */; };
 		3628C53B27563AA40001E885 /* RMBTHistoryQoSTitledResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3628C53A27563AA40001E885 /* RMBTHistoryQoSTitledResultCell.swift */; };
@@ -36,7 +36,7 @@
 		498581612EAA7982008C11A7 /* TestCoverageResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498581602EAA7982008C11A7 /* TestCoverageResultView.swift */; };
 		498581632EAB4F41008C11A7 /* FencePersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498581622EAB4F41008C11A7 /* FencePersistenceTests.swift */; };
 		498581DB2EAD0564008C11A7 /* CleanupDuringMeasurementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498581DA2EAD0564008C11A7 /* CleanupDuringMeasurementTests.swift */; };
-		498660252D88425A005E258C /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		498660252D88425A005E258C /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		49A0B1C92F2E1234007ABCDE /* AFNetworkLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A0B1C82F2E1234007ABCDE /* AFNetworkLogger.swift */; };
 		49B28C762BA09D6A00697BB4 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B28C752BA09D6A00697BB4 /* Keychain.swift */; };
 		49B28C792BA1914E00697BB4 /* RMBTTestExportCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49B28C782BA1914E00697BB4 /* RMBTTestExportCell.xib */; };
@@ -419,6 +419,11 @@
 		49EDC7812EAA35630009D9A6 /* NetworkCoverageFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkCoverageFactory.swift; sourceTree = "<group>"; };
 		49EDC7822EAA35630009D9A6 /* NetworkCoverageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkCoverageView.swift; sourceTree = "<group>"; };
 		49EDC7832EAA35630009D9A6 /* NetworkCoverageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkCoverageViewModel.swift; sourceTree = "<group>"; };
+		5E7219682EE029DB00F475AA /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = sl.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5E7219692EE029E300F475AA /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = sl; path = sl.lproj/terms_conditions_long.html; sourceTree = "<group>"; };
+		5E72196A2EE029E800F475AA /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = sl; path = sl.lproj/loop_mode_info.html; sourceTree = "<group>"; };
+		5E72196B2EE029ED00F475AA /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = sl; path = sl.lproj/loop_mode_info2.html; sourceTree = "<group>"; };
+		5E72196C2EE029F100F475AA /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = "sl.lproj/RMBT-InfoPlist.strings"; sourceTree = "<group>"; };
 		80C7ED683C33B9CFA9D17500 /* Pods_RMBTTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RMBTTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C573F2A4175281D300C728FC /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		C573F2B0175294A500C728FC /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
@@ -702,7 +707,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				498660252D88425A005E258C /* BuildFile in Frameworks */,
+				498660252D88425A005E258C /* (null) in Frameworks */,
 				EEF5E0D2BA1F3E3C8C9AA5E3 /* Pods_RMBTTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -731,7 +736,7 @@
 				C7DE1480173E8F610079477A /* CoreGraphics.framework in Frameworks */,
 				E9555EAF2727D4B1003547B0 /* CoreServices.framework in Frameworks */,
 				493D514C2DD7526200CC3473 /* libresolv.9.tbd in Frameworks */,
-				2E236185D01B43110800430E /* BuildFile in Frameworks */,
+				2E236185D01B43110800430E /* (null) in Frameworks */,
 				E85D26236B4299CF09E36054 /* Pods_RMBT.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -957,7 +962,6 @@
 				0408A479BEFFC9AFC71A3EDE /* Pods-RMBTTests.debug.xcconfig */,
 				04F87EE474D7B79508B1F16A /* Pods-RMBTTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -1827,9 +1831,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-RMBT/Pods-RMBT-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-RMBT/Pods-RMBT-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2187,6 +2195,7 @@
 			children = (
 				3678AA7E291E35D70059D6CB /* en */,
 				3678AA80291E35DC0059D6CB /* de */,
+				5E72196C2EE029F100F475AA /* sl */,
 			);
 			name = "RMBT-InfoPlist.strings";
 			sourceTree = "<group>";
@@ -2197,6 +2206,7 @@
 				E9555E9B2727D318003547B0 /* en */,
 				E9C13F8F272C286E00DA60D4 /* Base */,
 				E9C13F94272C28CD00DA60D4 /* de */,
+				5E72196A2EE029E800F475AA /* sl */,
 			);
 			name = loop_mode_info.html;
 			sourceTree = "<group>";
@@ -2207,6 +2217,7 @@
 				E9555E9C2727D31B003547B0 /* en */,
 				E9C13F90272C287100DA60D4 /* Base */,
 				E9C13F95272C28CD00DA60D4 /* de */,
+				5E72196B2EE029ED00F475AA /* sl */,
 			);
 			name = loop_mode_info2.html;
 			sourceTree = "<group>";
@@ -2217,6 +2228,7 @@
 				E9555E9A2727D309003547B0 /* en */,
 				E9C13F8E272C286C00DA60D4 /* Base */,
 				E9C13F93272C28CD00DA60D4 /* de */,
+				5E7219692EE029E300F475AA /* sl */,
 			);
 			name = terms_conditions_long.html;
 			sourceTree = "<group>";
@@ -2227,6 +2239,7 @@
 				E9555EA72727D478003547B0 /* en */,
 				E9C13F91272C289D00DA60D4 /* Base */,
 				E9C13F92272C28CD00DA60D4 /* de */,
+				5E7219682EE029DB00F475AA /* sl */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -2713,7 +2726,7 @@
 				CODE_SIGN_ENTITLEMENTS = RMBT.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 312;
+				CURRENT_PROJECT_VERSION = 316;
 				DEVELOPMENT_TEAM = 6BMEZC5Q6V;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -2734,7 +2747,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.0.3;
+				MARKETING_VERSION = 3.0.4;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -D DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = si.akos.akostestnet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2756,7 +2769,7 @@
 				CODE_SIGN_ENTITLEMENTS = RMBT.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 312;
+				CURRENT_PROJECT_VERSION = 316;
 				DEVELOPMENT_TEAM = 6BMEZC5Q6V;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -2773,7 +2786,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.0.3;
+				MARKETING_VERSION = 3.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = si.akos.akostestnet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

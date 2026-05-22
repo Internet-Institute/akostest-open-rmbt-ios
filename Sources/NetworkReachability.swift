@@ -16,6 +16,8 @@ import Reachability
         case wifi
         
         static func status(with connection: Reachability.Connection) -> NetworkReachabilityStatus {
+           
+
             switch connection {
             case .cellular:
                 return .mobile

@@ -343,7 +343,7 @@
 "loop_mode_no_gps" = "Kein GPS";
 "or" = "oder";
 
-"loop_mode_finished" = "Netztest abgeschlossen!";
+"loop_mode_finished" = "AKOS Test Net abgeschlossen!";
 "loop_mode_finished_description" = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquya.";
 "loop_continue_to_results" = "Weiter zum Ergebnis";
 "loop_run_again" = "Nochmals ausführen";
