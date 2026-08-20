@@ -48,6 +48,9 @@ struct PersistedFencesResender {
 
         // Submit oldest first (FIFO order)
         for (index, session) in sessions.reversed().enumerated() {
+            // A bounded ping-session preparation runs this resend first; stop between submissions once it gave up.
+            try Task.checkCancellation()
+
             let startedAtDate = Date(timeIntervalSince1970: Double(session.startedAt) / 1_000_000)
             let anchorAtDate = session.anchorAt.map { Date(timeIntervalSince1970: Double($0) / 1_000_000) }
             let finalizedAtDate = session.finalizedAt.map { Date(timeIntervalSince1970: Double($0) / 1_000_000) }
@@ -111,19 +114,28 @@ struct PersistedFencesResender {
     }
 
     private func makeFence(from persistedFence: PersistentFence) -> Fence {
+        let timestamp = Date(timeIntervalSince1970: Double(persistedFence.timestamp) / 1_000_000)
+        // Restore each extra through the sentinel its submission guard treats as "missing"
+        // (negative accuracy/verticalAccuracy/course/speed) so absent values stay absent.
+        let location = CLLocation(
+            coordinate: CLLocationCoordinate2D(latitude: persistedFence.latitude, longitude: persistedFence.longitude),
+            altitude: persistedFence.altitude ?? 0,
+            horizontalAccuracy: persistedFence.accuracy ?? -1,
+            verticalAccuracy: persistedFence.altitude != nil ? 0 : -1,
+            course: persistedFence.bearing ?? -1,
+            speed: persistedFence.speed ?? -1,
+            timestamp: timestamp
+        )
         var fence = Fence(
-            startingLocation: CLLocation(
-                latitude: persistedFence.latitude,
-                longitude: persistedFence.longitude
-            ),
-            dateEntered: Date(timeIntervalSince1970: Double(persistedFence.timestamp) / 1_000_000),
+            startingLocation: location,
+            dateEntered: timestamp,
             technology: persistedFence.technology,
+            // A persisted fence with no recorded average is reconstructed with a failed ping
+            // rather than "no attempts", keeping its no-coverage (grey) classification
+            // consistent with how it was drawn live (see Fence.isNoCoverage).
             pings: persistedFence.avgPingMilliseconds.map {
-                [PingResult(
-                    result: .interval(.milliseconds($0)),
-                    timestamp: Date(timeIntervalSince1970: Double(persistedFence.timestamp) / 1_000_000)
-                )]
-            } ?? [],
+                [PingResult(result: .interval(.milliseconds($0)), timestamp: timestamp)]
+            } ?? [PingResult(result: .error, timestamp: timestamp)],
             radiusMeters: persistedFence.radiusMeters
         )
 

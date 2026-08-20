@@ -34,11 +34,11 @@ Feature: UDP ping session behavior for RTR NetTest coverage
     Then the app shall stop the coverage measurement and show results
 
   # UDP transport requirements
-  Scenario: UDP transport must be unconnected
-    Given the server may respond to a UDP ping from a different IP address than the destination
+  Scenario: UDP transport is strict on server source address
+    Given the server responds to a UDP ping from the same IP address the client sent to
     When the client sends a UDP ping to the server address returned by ping_host
-    Then the client shall accept the reply regardless of which server source address it arrives from
-    And response validity shall be determined only by protocol fields (RR01/RE01) and sequence number
+    Then the client shall only accept replies arriving from that destination address
+    And response validity shall additionally be determined by protocol fields (RR01/RE01) and sequence number
 
   # UDP packet protocol mapping (Appendix: Specification Ping)
   Scenario: Successful ping response (RR01)
@@ -51,6 +51,116 @@ Feature: UDP ping session behavior for RTR NetTest coverage
     When the device receives a UDP response with protocol "RE01" and sequence number S
     Then the ping is considered failed with needsReinitialization
     And the app shall reinitialize the UDP ping session before continuing
+
+  # No pings while on Wi-Fi
+  Scenario: No pings are sent while the active path is Wi-Fi
+    Given a coverage measurement is running
+    When the active network path becomes Wi-Fi
+    Then the app shall stop sending UDP pings
+    And it shall not report any ping results, successful or failed
+    And a ping that was already in flight when Wi-Fi appeared shall not be reported either
+
+  Scenario: Returning from Wi-Fi refreshes the ping session
+    Given a coverage measurement paused its pings because the active path was Wi-Fi
+    When the active path becomes cellular again
+    Then the app shall obtain a fresh ping session via /coverageRequest
+    And it shall use the freshly returned ping_host, ping_port, ping_token and ip_version
+    And the previous session shall keep sending pings until the new credentials arrive
+
+  Scenario: A working ping does not settle an owed Wi-Fi refresh
+    Given the app owes a ping session refresh because it returned from Wi-Fi
+    And the refresh is still throttled by the recovery backoff
+    When pings in the previous session keep succeeding
+    Then the app shall still refresh the session once the backoff window elapses
+    Because the previous session's ip_version may be wrong for the new path
+
+  Scenario: Repeated Wi-Fi flapping does not create a session per flap
+    Given a coverage measurement is running
+    When the active path flaps between Wi-Fi and cellular several times within one backoff window
+    Then the app shall create at most one new ping session in that window
+    And the refresh owed by the remaining flaps shall be deferred, not lost
+
+  Scenario: Starting a measurement on Wi-Fi creates exactly one session
+    Given the active path is Wi-Fi when the measurement starts
+    Then the app shall not call /coverageRequest while it stays on Wi-Fi
+    When the active path becomes cellular
+    Then the app shall create exactly one ping session, not one followed by a refresh
+
+  # Recovery from a dead ping path
+  Scenario: Recover the session after a run of failed pings
+    Given a coverage measurement is running with a working ping session
+    When 30 consecutive ping outcomes fail or time out (about 3 seconds at the 100 ms cadence)
+    Then the app shall obtain a replacement ping session via /coverageRequest
+    And the previous session shall keep sending and reporting pings until the replacement's credentials arrive
+
+  Scenario: Do not recover while failures stay below the threshold
+    Given a coverage measurement is running
+    When fewer than 30 consecutive ping outcomes fail
+    Or a ping succeeds before the threshold is reached
+    Then the app shall keep using the current ping session
+
+  Scenario: Throttle repeated recoveries with a doubling backoff
+    Given the ping path stays broken
+    Then the first recovery shall happen immediately
+    And subsequent recoveries shall be spaced 10, 20, 40, 80 and then at most 120 seconds apart
+    And a successful ping shall restart that ladder
+
+  Scenario: A recovery attempt never silences the measurement
+    Given a coverage measurement is running with a working ping session
+    When a recovery attempt to /coverageRequest hangs or fails
+    Then the attempt shall be abandoned after 15 seconds
+    And the app shall continue using the previous ping session
+    And it shall retry the recovery at the next backoff slot
+    # The credentials fetch is bounded by 15 s; bringing the transport up is bounded by a tighter 5 s, because
+    # that is the only window in which nothing can send.
+
+  Scenario: Keep reporting failed pings while offline on cellular
+    Given a coverage measurement is running on a cellular or unavailable path
+    And no ping receives a response
+    Then the app shall keep reporting failed pings
+    So that the affected fences are rendered as "no coverage"
+
+  # Pinning the ping transport to cellular
+  Scenario: UDP pings are never carried over Wi-Fi
+    Given a coverage measurement is running on a physical device
+    When the app brings up the UDP ping transport
+    Then the connection shall be constrained to a cellular interface
+    And a connection that becomes ready on a path which also includes Wi-Fi shall be rejected
+    So that a measurement can never be labelled cellular while carried over Wi-Fi
+    # This is a guarantee, not a preference: the device-level Wi-Fi pause reads the *primary* path, so Wi-Fi that is
+    # associated but not primary would otherwise leave it unaware.
+
+  Scenario: The control request is not constrained to cellular
+    Given the app needs a new ping session
+    Then /coverageRequest may be carried over any interface, including Wi-Fi
+    And the returned ip_version shall still be honoured for the UDP connection
+    # Only the pings must be cellular. Because pings pause on Wi-Fi, /coverageRequest normally runs while cellular is
+    # primary, and returning from a Wi-Fi epoch refreshes the session. That is not a refresh on every path change, so
+    # a mismatched family remains possible; it shows up as repeated activation failures, not as a bad measurement.
+
+  Scenario: No cellular path available at all
+    Given a coverage measurement is running on a physical device
+    And no cellular path can be used, for example behind a full-tunnel VPN
+    Then the UDP transport shall fail to become ready
+    And the app shall not keep requesting new sessions at the credentials-retry cadence
+    And it shall report no pings rather than pings measured over another interface
+
+  Scenario: Repeated transport activation failures back off
+    Given a ping session's credentials were obtained successfully
+    But the UDP transport cannot be brought up
+    Then the first attempt shall be retried promptly
+    And subsequent attempts shall be spaced by a doubling backoff, capped at the same maximum as recoveries
+    And a successful activation shall restart that ladder
+    # A single failure is usually transient (a handover), so it is not slowed down. Only a run of them indicates a
+    # condition that will not clear on its own.
+
+  Scenario: A failed credentials fetch does not inherit the activation backoff
+    Given transport activation has already failed several times
+    When a later /coverageRequest itself fails
+    Then that failure shall be retried at the ordinary short retry delay
+    And the activation backoff shall keep escalating independently
+    # Missing credentials usually means the device is briefly offline and should be retried promptly; the two
+    # conditions are unrelated and keep separate ladders.
 
   # UI behavior during reinitialization
   Scenario: UI remains uninterrupted during ping session reinitialization

@@ -162,12 +162,13 @@ struct NetworkCoverageFactory {
             clock: clock,
             pingSender: UDPPingSession(
                 sessionInitiator: sessionInitializer,
-                udpConnection: AsyncSocketUDPConnection(),
+                udpConnection: NWUDPConnection(),
                 timeoutIntervalMs: 1000,
                 now: RMBTHelpers.RMBTCurrentNanos
             ),
             frequency: .milliseconds(100),
-            sessionMaxDuration: { sessionInitializer.maxCoverageMeasurementDuration }
+            sessionMaxDuration: { sessionInitializer.maxCoverageMeasurementDuration },
+            networkTypeProvider: networkTypeProvider
         ) }
 
         // Allow location updates regardless of initialization to support offline start

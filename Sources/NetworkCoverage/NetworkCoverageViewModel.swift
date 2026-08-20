@@ -71,7 +71,7 @@ struct FencePolylineSegment: Identifiable, Equatable {
 ///
 /// All values are deterministic to keep SwiftUI diffing stable and
 /// should be adjusted carefully because they directly affect
-/// performance on dense coverage measurements.
+/// performance on dense Signal Measurements.
 struct FencesRenderingConfiguration {
     /// Maximum number of circle annotations that can be rendered before switching to polylines.
     /// Lower values trade detail for better rendering performance in zoomed-out states.
@@ -340,7 +340,7 @@ struct SessionInitializedUpdate: Hashable {
             // Expected cancellation - no error
             return
         } catch {
-            errorMessage = "Network coverage measurement error: \(error.localizedDescription)"
+            errorMessage = "Signal Measurement error: \(error.localizedDescription)"
         }
     }
 
@@ -701,15 +701,15 @@ extension NetworkCoverageViewModel {
 
         static var inaccurateLocationWarning: Self {
             .init(
-                title: "Waiting for GPS",
-                description: "Currently the location accuracy is insufficient. Please measure outdoors."
+                title: NSLocalizedString("Waiting for GPS", comment: ""),
+                description: NSLocalizedString("Currently the location accuracy is insufficient. Please measure outdoors.", comment: "")
             )
         }
 
         static var wifiWarning: Self {
             .init(
-                title: "Disable Wi‑Fi",
-                description: "Please turn off Wi‑Fi to measure cellular coverage."
+                title: NSLocalizedString("Disable Wi‑Fi", comment: ""),
+                description: NSLocalizedString("Please turn off Wi‑Fi to measure cellular coverage.", comment: "")
             )
         }
     }
@@ -841,8 +841,12 @@ fileprivate extension NetworkCoverageViewModel {
             let gapThreshold = radius * 4
             let hasGap = distance > gapThreshold
             let technologyChanged = item.technology != currentTechnology
+            // Color encodes coverage as well as technology, so a change here also covers the
+            // case where the technology stays the same but the fence flips to/from "no coverage".
+            let colorChanged = item.color != currentColor
+            let segmentChanged = technologyChanged || colorChanged
 
-            if technologyChanged || hasGap {
+            if segmentChanged || hasGap {
                 appendCurrentSegment()
 
                 currentTechnology = item.technology
@@ -850,7 +854,7 @@ fileprivate extension NetworkCoverageViewModel {
                 fenceIds = [item.id]
                 coordinates = []
 
-                if technologyChanged && !hasGap {
+                if segmentChanged && !hasGap {
                     coordinates.append(previousItem.coordinate)
                 }
 
@@ -931,7 +935,7 @@ fileprivate extension NetworkCoverageViewModel {
             technology: fence.significantTechnology.map(displayValue) ?? "N/A",
             isSelected: selectedFenceItem?.id == fence.id,
             isCurrent: currentFence?.id == fence.id,
-            color: Color(technology: fence.significantTechnology?.radioTechnologyDisplayValue)
+            color: Color(fence: fence)
         )
     }
 
@@ -1070,20 +1074,30 @@ extension FenceDetail {
         date = selectedItemDateFormatter.string(from: fence.dateEntered)
         technology = fence.significantTechnology?.radioTechnologyDisplayValue ?? "N/A"
         averagePing = fence.averagePing.map { "\($0) ms" } ?? ""
-        color = Color(technology: fence.significantTechnology?.radioTechnologyDisplayValue)
+        color = Color(fence: fence)
     }
 }
 
 extension Color {
+    /// Resolves the map color for a fence.
+    ///
+    /// Returns the no-coverage grey when the fence has no connectivity or no successful ping
+    /// (see `Fence.isNoCoverage`); otherwise the color of its significant radio technology.
+    init(fence: Fence) {
+        self = fence.isNoCoverage
+            ? Color(technology: nil)
+            : Color(technology: fence.significantTechnology?.radioTechnologyDisplayValue)
+    }
+
     /// Creates a color for the given radio technology display value
     init(technology: String?) {
         self = switch technology {
-        case "2G": Color(red: 0.988, green: 0.651, blue: 0.212) // #fca636
-        case "3G": Color(red: 0.882, green: 0.392, blue: 0.384) // #e16462  
-        case "4G": Color(red: 0.694, green: 0.165, blue: 0.565) // #b12a90
-        case "5G NSA": Color(red: 0.416, green: 0.0, blue: 0.659) // #6a00a8
-        case "5G SA": Color(red: 0.051, green: 0.031, blue: 0.529) // #0d0887
-        default: Color(red: 0.851, green: 0.851, blue: 0.851) // #d9d9d9
+        case "2G": Color(red: 1.0, green: 0.871, blue: 0.0) // #FFDE00
+        case "3G": Color(red: 0.937, green: 1.0, blue: 0.0) // #EFFF00
+        case "4G": Color(red: 0.0, green: 0.871, blue: 1.0) // #00DEFF
+        case "5G NSA": Color(red: 0.0, green: 0.569, blue: 1.0) // #0091FF
+        case "5G SA": Color(red: 0.369, green: 0.0, blue: 1.0) // #5E00FF
+        default: Color(red: 0.627, green: 0.627, blue: 0.627) // #A0A0A0
         }
     }
 }

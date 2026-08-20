@@ -12,19 +12,19 @@ import ObjectMapper
 public class SendCoverageResultRequest: BasicRequest {
     final class CoverageFence: Mappable {
         final class Location: Mappable {
-            private(set) var latitude: Double
-            private(set) var longitude: Double
-            private(set) var accuracy: Double?
-            private(set) var altitude: Double?
-            private(set) var heading: Double?
-            private(set) var speed: Double?
+            private(set) var latitude: Decimal
+            private(set) var longitude: Decimal
+            private(set) var accuracy: Decimal?
+            private(set) var altitude: Decimal?
+            private(set) var bearing: Decimal?
+            private(set) var speed: Decimal?
 
-            init(latitude: Double, longitude: Double, accuracy: Double?, altitude: Double?, heading: Double?, speed: Double?) {
+            init(latitude: Decimal, longitude: Decimal, accuracy: Decimal?, altitude: Decimal?, bearing: Decimal?, speed: Decimal?) {
                 self.latitude = latitude
                 self.longitude = longitude
                 self.accuracy = accuracy
                 self.altitude = altitude
-                self.heading = heading
+                self.bearing = bearing
                 self.speed = speed
             }
 
@@ -37,14 +37,14 @@ public class SendCoverageResultRequest: BasicRequest {
                 longitude       <- map["longitude"]
                 accuracy        <- map["accuracy"]
                 altitude        <- map["altitude"]
-                heading         <- map["heading"]
+                bearing         <- map["bearing"]
                 speed           <- map["speed"]
             }
         }
 
         private(set) var timestamp: UInt64
         private(set) var location: Location
-        private(set) var avgPingMilliseconds: Int?
+        private(set) var avgPingMilliseconds: Decimal?
         private(set) var offsetMiliseconds: Int
         private(set) var durationMiliseconds: Int?
         static let noNetworkTechnology = "NONE"
@@ -57,18 +57,15 @@ public class SendCoverageResultRequest: BasicRequest {
         init(fence: Fence, coverageStartDate: Date) {
             timestamp = UInt64(fence.dateEntered.timeIntervalSince1970 * 1_000_000) // microseconds
             let loc = fence.startingLocation
-            // Derive optional location extras if available
-            let heading: Double? = loc.course >= 0 ? loc.course : nil
-            let speed: Double? = loc.speed >= 0 ? loc.speed : nil
             location = .init(
-                latitude: loc.coordinate.latitude,
-                longitude: loc.coordinate.longitude,
-                accuracy: loc.horizontalAccuracy >= 0 ? loc.horizontalAccuracy : nil,
-                altitude: loc.verticalAccuracy >= 0 ? loc.altitude : nil,
-                heading: heading,
-                speed: speed
+                latitude: loc.coordinate.latitude.exactDecimal,
+                longitude: loc.coordinate.longitude.exactDecimal,
+                accuracy: loc.horizontalAccuracy > 0 ? Decimal(loc.horizontalAccuracy).roundedToDecimalPlaces(1) : nil,
+                altitude: loc.verticalAccuracy >= 0 ? Decimal(loc.altitude).roundedToDecimalPlaces(1) : nil,
+                bearing: loc.course >= 0 ? Decimal(loc.course).roundedToDecimalPlaces(0) : nil,
+                speed: loc.speed >= 0 ? Decimal(loc.speed).roundedToDecimalPlaces(2) : nil
             )
-            avgPingMilliseconds = fence.averagePing
+            avgPingMilliseconds = fence.averagePingMilliseconds.map { Decimal($0).roundedToDecimalPlaces(2) }
 
             offsetMiliseconds = Int(fence.dateEntered.timeIntervalSince(coverageStartDate) * 1000)
 
@@ -168,15 +165,44 @@ struct ControlServerCoverageResultsService: SendCoverageResultsService {
             throw Failure.missingStartDate
         }
 
-        _ = try await withCheckedThrowingContinuation { continuation in
-            controlServer.submitCoverageResult(
-                .init(fences: fences, testUUID: testUUID, coverageStartDate: coverageStartDate),
-                acceptableStatusCodes: NetworkCoverageFactory.acceptableSubmitResultsRequestStatusCodes
-            ) { response in
-                continuation.resume(returning: response)
-            } error: { error in
-                continuation.resume(throwing: error)
+        // Cancellation-aware: every ping-session preparation runs a resend first, and that preparation is bounded.
+        // Without this, giving up on the preparation would still wait for this submission to call back.
+        let resumeOnce = OneShotContinuation<Any?>()
+
+        _ = try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Any?, any Error>) in
+                resumeOnce.install(continuation)
+                guard !Task.isCancelled else {
+                    resumeOnce.resume(throwing: CancellationError())
+                    return
+                }
+                controlServer.submitCoverageResult(
+                    .init(fences: fences, testUUID: testUUID, coverageStartDate: coverageStartDate),
+                    acceptableStatusCodes: NetworkCoverageFactory.acceptableSubmitResultsRequestStatusCodes
+                ) { response in
+                    resumeOnce.resume(returning: response)
+                } error: { error in
+                    resumeOnce.resume(throwing: error)
+                }
             }
+        } onCancel: {
+            resumeOnce.resume(throwing: CancellationError())
         }
     }
+}
+
+private extension Decimal {
+    func roundedToDecimalPlaces(_ places: Int) -> Decimal {
+        var result = Decimal()
+        var value = self
+        NSDecimalRound(&result, &value, places, .plain)
+        return result
+    }
+}
+
+private extension Double {
+    // Routes through the shortest round-trippable string so the encoded JSON keeps full
+    // precision without the floating-point tail (e.g. 48.2082, not 48.208199999999998).
+    // `Decimal(self)` would instead introduce its own long, lossy tail for such values.
+    var exactDecimal: Decimal { Decimal(string: String(self)) ?? Decimal(self) }
 }

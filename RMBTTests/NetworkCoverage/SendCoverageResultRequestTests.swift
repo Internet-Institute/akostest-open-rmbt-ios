@@ -58,14 +58,101 @@ struct SendCoverageResultRequestTests {
         #expect(json["radius"] as? Int == 25)
         #expect(json["offset_ms"] as? Int == 0)
         #expect(json["duration_ms"] as? Int == 2000)
+        #expect((json["avg_ping_ms"] as? NSNumber)?.doubleValue == 50)
 
         let location = try #require(json["location"] as? [String: Any])
-        #expect(location["latitude"] as? Double == 48.2082)
-        #expect(location["longitude"] as? Double == 16.3738)
-        #expect(location["accuracy"] as? Double == 7)
-        #expect(location["altitude"] as? Double == 123)
-        #expect(location["heading"] as? Double == 42)
-        #expect(location["speed"] as? Double == 1.5)
+        #expect((location["latitude"] as? NSNumber)?.doubleValue == 48.2082)
+        #expect((location["longitude"] as? NSNumber)?.doubleValue == 16.3738)
+        #expect((location["accuracy"] as? NSNumber)?.doubleValue == 7)
+        #expect((location["altitude"] as? NSNumber)?.doubleValue == 123)
+        #expect((location["bearing"] as? NSNumber)?.doubleValue == 42)
+        #expect((location["speed"] as? NSNumber)?.doubleValue == 1.5)
+    }
+
+    @Test("WHEN coordinates have full GPS precision THEN encodes them losslessly without a floating-point tail")
+    func whenCoordinatesHaveFullPrecision_thenEncodesLosslessly() throws {
+        let json = try encodedFence(from: makeFence(lat: 48.20820123456789, lon: 16.373812345678))
+        let location = try #require(json["location"] as? [String: Any])
+
+        let serialized = try #require(String(
+            data: JSONSerialization.data(withJSONObject: location),
+            encoding: .utf8
+        ))
+        #expect(serialized.contains("\"latitude\":48.20820123456789"))
+        #expect(serialized.contains("\"longitude\":16.373812345678"))
+        #expect(!serialized.contains("99999"))
+    }
+
+    @Test("WHEN altitude, bearing and speed have excessive precision THEN rounds each per its unit rule (meter 1, bearing 0, speed 2)")
+    func whenMetricsHaveExcessivePrecision_thenRoundsEachPerUnitRule() throws {
+        let json = try encodedFence(from: makeFence(
+            altitude: 287.65432198, verticalAccuracy: 5, course: 42.98765, speed: 1.523423
+        ))
+        let location = try #require(json["location"] as? [String: Any])
+
+        #expect((location["altitude"] as? NSNumber)?.decimalValue == Decimal(string: "287.7"))
+        #expect((location["bearing"] as? NSNumber)?.decimalValue == Decimal(string: "43"))
+        #expect((location["speed"] as? NSNumber)?.decimalValue == Decimal(string: "1.52"))
+    }
+
+    @Test("WHEN bearing is fractional THEN rounds to whole degrees with no decimal")
+    func whenBearingIsFractional_thenRoundsToWholeDegrees() throws {
+        let json = try encodedFence(from: makeFence(course: 137.6))
+        let location = try #require(json["location"] as? [String: Any])
+
+        #expect((location["bearing"] as? NSNumber)?.decimalValue == Decimal(string: "138"))
+    }
+
+    @Test("WHEN speed has excessive precision THEN rounds to 2 decimal places")
+    func whenSpeedHasExcessivePrecision_thenRoundsToTwoDecimals() throws {
+        let json = try encodedFence(from: makeFence(speed: 55.12678))
+        let location = try #require(json["location"] as? [String: Any])
+
+        #expect((location["speed"] as? NSNumber)?.decimalValue == Decimal(string: "55.13"))
+    }
+
+    @Test("WHEN average ping is fractional THEN encodes avg_ping_ms rounded to 2 decimal places")
+    func whenAveragePingIsFractional_thenRoundsToTwoDecimals() throws {
+        let t = Date(timeIntervalSinceReferenceDate: 0)
+        let json = try encodedFence(from: makeFence(pings: [
+            PingResult(result: .interval(.milliseconds(10)), timestamp: t),
+            PingResult(result: .interval(.milliseconds(10)), timestamp: t),
+            PingResult(result: .interval(.milliseconds(11)), timestamp: t)
+        ]))
+
+        #expect((json["avg_ping_ms"] as? NSNumber)?.decimalValue == Decimal(string: "10.33"))
+    }
+
+    @Test("WHEN location course is the device bearing THEN encodes it under the bearing key")
+    func whenLocationHasCourse_thenEncodesUnderBearingKey() throws {
+        let json = try encodedFence(from: makeFence(course: 137))
+
+        let location = try #require(json["location"] as? [String: Any])
+        #expect((location["bearing"] as? NSNumber)?.doubleValue == 137)
+        #expect(location["heading"] == nil)
+    }
+
+    @Test("WHEN accuracy has excessive precision THEN encodes a clean 1-decimal number without a floating-point tail")
+    func whenAccuracyHasExcessivePrecision_thenEncodesCleanOneDecimal() throws {
+        let json = try encodedFence(from: makeFence(horizontalAccuracy: 9.1425325252252362))
+        let location = try #require(json["location"] as? [String: Any])
+
+        #expect((location["accuracy"] as? NSNumber)?.decimalValue == Decimal(string: "9.1"))
+
+        let serialized = try #require(String(
+            data: JSONSerialization.data(withJSONObject: location),
+            encoding: .utf8
+        ))
+        #expect(serialized.contains("\"accuracy\":9.1"))
+        #expect(!serialized.contains("9.0999"))
+    }
+
+    @Test("WHEN location has no valid accuracy THEN omits accuracy rather than reporting zero")
+    func whenLocationHasNoValidAccuracy_thenOmitsAccuracy() throws {
+        let json = try encodedFence(from: makeFence(horizontalAccuracy: 0))
+
+        let location = try #require(json["location"] as? [String: Any])
+        #expect(location["accuracy"] == nil)
     }
 }
 

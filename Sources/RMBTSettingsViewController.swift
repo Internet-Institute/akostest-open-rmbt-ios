@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import SwiftUI
 import MessageUI
 
 enum RMBTSettingsSection: Int {
@@ -71,7 +72,7 @@ class RMBTSettingsViewController: UITableViewController {
         
         prepareGeneralSettings()
         prepareAdvancedSettings()
-        
+
         self.title = NSLocalizedString("preferences_general_settings", comment: "")
         self.navigationItem.leftBarButtonItem = self.closeBarButtonItem
         
@@ -245,6 +246,8 @@ class RMBTSettingsViewController: UITableViewController {
         
         if settings.expertMode {
             self.advancedSettings.append(IndexPath(row: 4, section: RMBTSettingsSection.advanced.rawValue))
+            // SIM Information (diagnostic) sits right below IPv4 only; both are expert-only.
+            self.advancedSettings.append(IndexPath(row: 5, section: RMBTSettingsSection.advanced.rawValue))
         }
     }
     
@@ -373,8 +376,6 @@ class RMBTSettingsViewController: UITableViewController {
         }
         if (section == RMBTSettingsSection.advanced.rawValue) {
             return self.advancedSettings.count
-        } else if (section == RMBTSettingsSection.advanced.rawValue && !settings.loopMode) {
-            return 1 // hide customization
         } else if (section == RMBTSettingsSection.debugCustomControlServer.rawValue && !settings.debugControlServerCustomizationEnabled) {
             return 1 // hide customization
         } else if (section == RMBTSettingsSection.logging.rawValue && !settings.debugLoggingEnabled) {
@@ -484,8 +485,13 @@ class RMBTSettingsViewController: UITableViewController {
                 presentLogShareSheet(from: indexPath)
             default: break
             }
+        } else if (indexPath.section == RMBTSettingsSection.advanced.rawValue) {
+            // SIM Information is storyboard row 5 — the only tappable advanced row (others are toggles/fields).
+            if advancedSettings[indexPath.row].row == 5 {
+                presentSIMInfo()
+            }
         }
-        
+
         if let cell = tableView.cellForRow(at: indexPath),
            let textField = self.searchTextField(in: cell) {
             if !textField.isFirstResponder {
@@ -581,8 +587,8 @@ extension RMBTSettingsViewController {
                 // Confirmation alert with default system "OK" button
                 let title = NSLocalizedString("Network Coverage", comment: "Alert title for coverage feature toggle")
                 let message = enableCoverage
-                    ? NSLocalizedString("The Network Coverage feature has been enabled.", comment: "Coverage enabled message")
-                    : NSLocalizedString("The Network Coverage feature has been disabled.", comment: "Coverage disabled message")
+                    ? NSLocalizedString("The Signal Measurement feature has been enabled.", comment: "Signal Measurement enabled message")
+                    : NSLocalizedString("The Signal Measurement feature has been disabled.", comment: "Signal Measurement disabled message")
 
                 _ = UIAlertController.presentAlert(title: title,
                                                     text: message,
@@ -604,6 +610,16 @@ extension RMBTSettingsViewController {
     
     @objc func closeButtonClick(_ sender: Any) {
         self.dismiss(animated: true)
+    }
+
+    func presentSIMInfo() {
+        let hostingController = UIHostingController(rootView: SIMInfoView())
+        hostingController.title = NSLocalizedString("preferences_sim_info", comment: "")
+        if let navigationController = self.navigationController {
+            navigationController.pushViewController(hostingController, animated: true)
+        } else {
+            present(hostingController, animated: true)
+        }
     }
     
     @objc func updateLogging() {

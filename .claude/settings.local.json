@@ -6,7 +6,19 @@
       "mcp__XcodeBuildMCP__build_sim_name_ws",
       "Bash(rm:*)",
       "Bash(mkdir:*)",
-      "mcp__XcodeBuildMCP__clean_ws"
+      "mcp__XcodeBuildMCP__clean_ws",
+      "Bash(bundle exec *)",
+      "Read(//usr/local/Cellar/ruby/3.4.7/bin/**)",
+      "Bash(/usr/local/opt/ruby/bin/ruby --version)",
+      "Read(//opt/homebrew/opt/ruby/bin/**)",
+      "Bash(plutil -lint RMBT.xcodeproj/project.pbxproj)",
+      "Read(//opt/homebrew/opt/**)",
+      "Read(//usr/local/opt/**)",
+      "Bash(/opt/homebrew/bin/brew --prefix)",
+      "Bash(/usr/local/bin/brew --prefix)",
+      "Bash(python3 *)",
+      "Bash(plutil -lint Sources/Views/RMBTIntroLandscapeView.xib)",
+      "Bash(./Scripts/update_configurations_from_private.sh)"
     ],
     "deny": []
   }

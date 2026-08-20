@@ -245,9 +245,6 @@
 
 /* A11 */
 "Start" = "Start";
-"History" = "Verlauf";
-"Statistics" = "Statistiks";
-"Map" = "Karte";
 "Collapse results" = "Ergebnisse einklappen";
 "Expand results" = "Ergebnisse erweitern";
 "Share result" = "Ergebnis teilen";
@@ -288,9 +285,8 @@
 "public_ip_address" = "Öffentliche Adresse";
 "private_ip_address" = "Lokale Adresse";
 
-"title_loop_mode" = "Wiederholungsmodus";
 "title_coverage_series" = "Abdeckungsserie";
-"coverage_label" = "Abdeckung";
+"coverage_label" = "Signalmessung";
 
 /* Location Dialog */
 "location_dialog_label_title" = "Standort";
@@ -330,14 +326,11 @@
 "title_loop_count" = "Wählen Sie die Anzahl der Tests";
 "text_loop_start" = "Tests starten";
 "text_loop_mode" = "Neuer Test nach Wartezeit oder Zurücklegen der Distanz. Max. 2 Tage";
-"preferences_loop_mode_summary" = "Neuer Test nach Wartezeit oder Zurücklegen der Distanz. Max. 2 Tage";
-"preferences_loop_mode_min_delay" = "Wartezeit (in Minuten)";
-"preferences_loop_mode_max_movement" = "Distanz (in Metern)";
 
-"invalide_loop_mode_count" = "Invalid number of tests";
-"invalide_loop_mode_distance" = "Invalid waiting distance";
-"invalide_loop_mode_waiting_minutes" = "Invalid waiting minutes";
-"loop_mode_enter_value_between_format" = "Please enter a value between %i and %i";
+"invalide_loop_mode_count" = "Ungültige Anzahl der Tests";
+"invalide_loop_mode_distance" = "Ungültige Wartedistanz";
+"invalide_loop_mode_waiting_minutes" = "Ungültige Wartezeit in Minuten";
+"loop_mode_enter_value_between_format" = "Bitte geben Sie einen Wert zwischen %i und %i ein";
 
 "loop_mode_next_test" = "Nächster Test";
 "loop_mode_minutes" = "Minuten";
@@ -378,11 +371,11 @@
 
 "measurement_qos" = "Servicequalität (QoS)";
 "measurement_qos_website" = "Webseite";
+"measurement_qos_http_proxy" = "Unveränderter Inhalt";
 "measurement_qos_non_transparent_proxy" = "Transparente Verbindung";
 "measurement_qos_dns" = "DNS";
 "measurement_qos_tcp" = "TCP Ports";
 "measurement_qos_udp" = "UDP Ports";
-"measurement_qos_http_proxy" = "Unveränderter Inhalt";
 "measurement_qos_traceroute_masked" = "Traceroute";
 "measurement_qos_voip" = "VoIP";
 
@@ -419,7 +412,7 @@
 "preferences_override_control_enabled" = "Control-Server überschreiben";
 "preferences_override_control_server_host" = "Control Host";
 "preferences_override_control_server_port" = "Control Port";
-"preferences_override_control_server_ssl" = "Control SSL";
+"preferences_override_control_server_ssl" = "Kontroll-SSL";
 
 "preferences_developer_logging" = "Protokollierung";
 "preferences_developer_logging_enabled" = "Protokollierung aktivieren";
@@ -436,7 +429,7 @@
 "map.cart_details" = "Kartendetails";
 
 "map_style_hybrid" = "Hybrid";
-"map_style_satellite" = "Satellite";
+"map_style_satellite" = "Satellit";
 "map_style_standard" = "Standard";
 
 "map_layer_communities" = "Gemeinden";
@@ -455,4 +448,58 @@
 "History" = "Verlauf";
 "Statistics" = "Statistik";
 "Map" = "Karte";
-"Coverage" = "Coverage";
+"Coverage" = "Signalmessung";
+
+"preferences_sim_info" = "SIM-Informationen";
+"coverage_intro_title" = "Signalmessung";
+"coverage_intro_description" = "Die Signalmessung ermöglicht Messungen des Mobilfunknetzes im Freien entlang einer Strecke. Sie überwacht Konnektivität, Technologie und Signalstärke. Die Konnektivität wird mit regelmäßigen Netzwerk-Pings gemessen. Die Messung erfordert guten GPS-Empfang und WLAN muss ausgeschaltet sein. Sie verbraucht deutlich weniger Daten als die Geschwindigkeitsmessung. Die Signalmessung ist (nur) für die Nutzung innerhalb der EU und des EWR vorgesehen.";
+"coverage_intro_start_button" = "Test starten";
+"Technology" = "Technologie";
+"Ping" = "Ping";
+"Loc. accuracy" = "Standortgenauigkeit";
+"Experts details" = "Expertendetails";
+"Only locations at or below this accuracy contribute to fences and ping assignment." = "Nur Standorte mit dieser oder besserer Genauigkeit fließen in Fences und die Ping-Zuordnung ein.";
+"Date:" = "Datum:";
+"Technology:" = "Technologie:";
+"Ping:" = "Ping:";
+"SIM Information" = "SIM-Informationen";
+"Refresh" = "Aktualisieren";
+"Generation" = "Generation";
+"Used for data" = "Für Daten verwendet";
+"Registered" = "Registriert";
+"DATA" = "DATA";
+"No cellular service detected. The device may have no SIM, be Wi-Fi only, or be in airplane mode." = "Kein Mobilfunknetz erkannt. Das Gerät hat möglicherweise keine SIM, ist nur mit WLAN verbunden oder befindet sich im Flugmodus.";
+"Yes" = "Ja";
+"No" = "Nein";
+
+
+"Stop Coverage Test" = "Signalmessung beenden";
+"The test will be stopped and results will be sent to the server." = "Der Test wird beendet und die Ergebnisse werden an den Server gesendet.";
+"Stop test" = "Test beenden";
+"Continue test" = "Test fortsetzen";
+"Waiting for GPS" = "Warten auf GPS";
+"No sufficiently accurate location was obtained within %d minutes." = "Innerhalb von %d Minuten wurde kein ausreichend genauer Standort ermittelt.";
+"Signal Measurement Results" = "Ergebnisse der Signalmessung";
+
+
+"Currently the location accuracy is insufficient. Please measure outdoors." = "Die Standortgenauigkeit ist derzeit unzureichend. Bitte messen Sie im Freien.";
+"Disable Wi‑Fi" = "WLAN deaktivieren";
+"Please turn off Wi‑Fi to measure cellular coverage." = "Bitte schalten Sie WLAN aus, um die Signalmessung durchzuführen.";
+"Network Coverage" = "Signalmessung";
+"No service" = "Keine Versorgung";
+"Unknown" = "Unbekannt";
+
+
+"history_empty_label" = "Von diesem Gerät wurden noch keine Tests durchgeführt";
+
+
+"Connectivity" = "Konnektivität";
+"Status" = "Status";
+"Checking…" = "Wird geprüft…";
+"Network path available" = "Netzwerkpfad verfügbar";
+"No connection (radio is on)" = "Keine Verbindung (Funk ist an)";
+"Likely airplane mode or offline" = "Wahrscheinlich Flugmodus oder offline";
+"This information is a best-effort guess from iOS APIs and may be incomplete or inconsistent." = "Diese Informationen sind eine bestmögliche Schätzung aus iOS-APIs und können unvollständig oder inkonsistent sein.";
+
+"coverage_unavailable_title" = "Signalmessung nicht verfügbar";
+"coverage_unavailable_message" = "Die Signalmessung erfordert, dass WLAN ausgeschaltet ist und ein guter GPS-Empfang besteht. Bitte korrigieren und erneut versuchen.";
