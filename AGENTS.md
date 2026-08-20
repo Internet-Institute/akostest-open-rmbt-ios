@@ -46,7 +46,7 @@ Explain clearly your reasoning behind your decisions and pros/cons of chosen sol
 - **SwiftUI Network Coverage**: Modern view-model layering, heavy reliance on dependency injection and async sequences.
 - **Measurement engine**: `RMBTTestRunner` orchestrates parallel `RMBTTestWorker`s for ping/download/upload; QoS suite covers TCP, UDP, DNS, HTTP checks.
 - **Data flow**: Test run → progress callbacks → local persistence → submission via `RMBTControlServer` → history rendering in `RMBTHistoryIndexViewController`.
-- **Localization**: string tables under `Resources/<lang>.lproj/Localizable.strings`. Active locales: `en`, `Base`, `de`, `ar`, `cs`, `es`, `fr`, `hr`, `hu` (kept in sync with the Xcode project's `knownRegions`). See the **Localization workflow** section below before adding or changing strings.
+- **Localization**: string tables under `Resources/<lang>.lproj/Localizable.strings`. Active locales: `en`, `Base`, `de`, `sl` (kept in sync with the Xcode project's `knownRegions`). See the **Localization workflow** section below before adding or changing strings.
 
 ## Key Integration Points
 - **RTR Control Backend** via `RMBTControlServer` (Alamofire-based). Keep endpoints synced in `Configs/RMBTConfig.swift`.
@@ -68,7 +68,7 @@ Translations are maintained by humans and are intentionally behind. When you add
 
 - **Never auto-translate / machine-translate.** Only provide real values for the source language (English). All other locales get an English placeholder until a human translates them.
 - **New user-facing strings** go into `Base` and `en` with the real English value (these are the source of truth).
-- **All other locales** (`de`, `ar`, `cs`, `es`, `fr`, `hr`, `hu`) get the same key with the **English text as a placeholder**, appended under the per-file comment block:
+- **All other locales** (`de`, `sl`) get the same key with the **English text as a placeholder**, appended under the per-file comment block:
   `/* ===== TODO: NEEDS TRANSLATION (English placeholder) ===== */`
   Keep these entries grouped under that header so the translation backlog is easy to find. German is included here too — do not translate it inline unless explicitly asked.
 - **iOS fallback reality**: there is no per-key fallback to English. A locale missing a key renders the **key string itself**, so every active locale must contain every key (English placeholder is acceptable). Run a key-parity check across locales after edits.
