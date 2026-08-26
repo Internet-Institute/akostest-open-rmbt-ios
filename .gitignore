@@ -13,6 +13,7 @@ xcuserdata
 *.xcworkspace
 
 /Configs/
+/public/
 Pods/
 Resources/Images.xcassets/AppIcon.appiconset/
 tmp/
